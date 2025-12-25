@@ -35,35 +35,40 @@ export const Navbar = () => {
     null
   );
 
-  // Fetch weather for Dhaka, Bangladesh - with fallback
+  // Fetch weather for Dhaka, Bangladesh using Open-Meteo API (free, no API key needed)
   useEffect(() => {
     const fetchWeather = async () => {
-      // Try user's API key first, then fallback
-      const apiKeys = [
-        "dac4b8593a2965ceabafc895fcabd848",
-        "bd5e378503939ddaee76f12ad7a97608",
-      ];
+      try {
+        // Dhaka coordinates: 23.8103, 90.4125
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=23.8103&longitude=90.4125&current=temperature_2m,weather_code`
+        );
+        const data = await response.json();
 
-      for (const apiKey of apiKeys) {
-        try {
-          const response = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=Dhaka,BD&units=metric&appid=${apiKey}`
-          );
-          const data = await response.json();
-          if (data.main && data.cod === 200) {
-            setWeather({
-              temp: Math.round(data.main.temp),
-              icon: data.weather[0]?.icon || "01d",
-            });
-            return; // Success, exit loop
-          }
-        } catch (error) {
-          console.error("Error fetching weather with key:", apiKey);
+        if (data.current) {
+          // Map weather code to icon
+          const weatherCode = data.current.weather_code;
+          let icon = "01d"; // default sunny
+
+          // WMO Weather codes mapping
+          if (weatherCode === 0) icon = "01d"; // Clear sky
+          else if (weatherCode <= 3) icon = "02d"; // Partly cloudy
+          else if (weatherCode <= 49) icon = "50d"; // Fog
+          else if (weatherCode <= 69) icon = "10d"; // Rain
+          else if (weatherCode <= 79) icon = "13d"; // Snow
+          else if (weatherCode <= 99) icon = "11d"; // Thunderstorm
+
+          setWeather({
+            temp: Math.round(data.current.temperature_2m),
+            icon: icon,
+          });
+          return;
         }
+      } catch (error) {
+        console.error("Error fetching weather:", error);
       }
 
-      // If all API calls fail, set a default/estimated weather for Dhaka
-      // Average temperature in Dhaka based on season
+      // Fallback: estimated weather for Dhaka based on season
       const month = new Date().getMonth();
       let estimatedTemp = 28; // Default
       if (month >= 11 || month <= 1) estimatedTemp = 20; // Winter

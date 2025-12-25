@@ -41,6 +41,7 @@ interface CommunityPost {
   content: string;
   likes: number;
   likedBy?: string[];
+  commentCount?: number;
   created_at: string;
   user_id: string;
   profiles?: {
@@ -433,6 +434,15 @@ export const Community = () => {
         }));
         setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
       }
+
+      // Update the comment count in posts state
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, commentCount: (post.commentCount || 0) + 1 }
+            : post
+        )
+      );
     } catch (error) {
       console.error("Error adding comment:", error);
     } finally {
@@ -513,14 +523,49 @@ export const Community = () => {
 
   const deleteComment = async (postId: string, commentId: string) => {
     try {
+      // Count the comment and its replies before deleting
+      const countToDelete = countCommentAndReplies(
+        postComments[postId] || [],
+        commentId
+      );
+
       await communityApi.deleteComment(commentId);
       setPostComments((prev) => ({
         ...prev,
         [postId]: removeCommentFromTree(prev[postId] || [], commentId),
       }));
+
+      // Update the comment count in posts state
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                commentCount: Math.max(0, (post.commentCount || 0) - countToDelete),
+              }
+            : post
+        )
+      );
     } catch (error) {
       console.error("Error deleting comment:", error);
     }
+  };
+
+  const countCommentAndReplies = (
+    comments: Comment[],
+    commentId: string
+  ): number => {
+    for (const comment of comments) {
+      if (comment._id === commentId) {
+        // Count this comment + all its replies
+        return 1 + getTotalCommentCount(comment.replies || []);
+      }
+      if (comment.replies && comment.replies.length > 0) {
+        const count = countCommentAndReplies(comment.replies, commentId);
+        if (count > 0) return count;
+      }
+    }
+    return 0;
   };
 
   const removeCommentFromTree = (
@@ -805,7 +850,7 @@ export const Community = () => {
                       <span className="font-medium">
                         {postComments[post.id]
                           ? getTotalCommentCount(postComments[post.id])
-                          : 0}
+                          : (post.commentCount || 0)}
                       </span>
                       {expandedComments.has(post.id) ? (
                         <ChevronUp className="h-4 w-4" />

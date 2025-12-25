@@ -11,12 +11,26 @@ export const getPosts = async (req, res, next) => {
       .populate("userId", "fullName email")
       .sort({ createdAt: -1 });
 
+    // Get comment counts for all posts
+    const postIds = posts.map((post) => post._id);
+    const commentCounts = await PostComment.aggregate([
+      { $match: { postId: { $in: postIds } } },
+      { $group: { _id: "$postId", count: { $sum: 1 } } },
+    ]);
+
+    // Create a map of postId -> comment count
+    const commentCountMap = {};
+    commentCounts.forEach((item) => {
+      commentCountMap[item._id.toString()] = item.count;
+    });
+
     // Transform to match frontend expectations
     const transformedPosts = posts.map((post) => ({
       id: post._id,
       content: post.content,
       likes: post.likes,
       likedBy: post.likedBy || [],
+      commentCount: commentCountMap[post._id.toString()] || 0,
       created_at: post.createdAt,
       user_id: post.userId._id,
       profiles: {
