@@ -12,6 +12,7 @@ import {
   Shield,
   ChevronDown,
   Globe,
+  CloudSun,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -30,6 +31,34 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [weather, setWeather] = useState<{ temp: number; icon: string } | null>(
+    null
+  );
+
+  // Fetch weather for Dhaka, Bangladesh
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=Dhaka,BD&units=metric&appid=bd5e378503939ddaee76f12ad7a97608`
+        );
+        const data = await response.json();
+        if (data.main) {
+          setWeather({
+            temp: Math.round(data.main.temp),
+            icon: data.weather[0]?.icon || "01d",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    };
+
+    fetchWeather();
+    // Refresh weather every 30 minutes
+    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const navCategories = [
     {
@@ -118,7 +147,7 @@ export const Navbar = () => {
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-11/12 mx-auto">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link
@@ -154,6 +183,17 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Weather Display for Dhaka */}
+            {weather && (
+              <div className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white text-sm font-medium shadow-md">
+                <CloudSun className="h-4 w-4" />
+                <span>{weather.temp}°C</span>
+                <span className="text-xs opacity-80">
+                  {language === "bn" ? "ঢাকা" : "Dhaka"}
+                </span>
+              </div>
+            )}
+
             {/* Language Toggle Button */}
             <button
               onClick={toggleLanguage}
