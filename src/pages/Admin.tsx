@@ -1,31 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { profileApi, adminApi, blogApi, communityApi } from '../lib/api';
-import { AdminQuizManager } from '../components/AdminQuizManager';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { profileApi, adminApi, blogApi, communityApi } from "../lib/api";
+import { AdminQuizManager } from "../components/AdminQuizManager";
 import {
   LayoutDashboard,
   FileText,
   HelpCircle,
   Target,
   Users,
+  User,
   BarChart3,
   Settings,
   Shield,
   MessageSquare,
   Trash2,
-  Heart
-} from 'lucide-react';
-import { useNotification } from '../contexts/NotificationContext';
+  Heart,
+} from "lucide-react";
+import { useNotification } from "../contexts/NotificationContext";
 
-type Tab = 'overview' | 'quiz' | 'blog' | 'challenges' | 'users' | 'community';
+type Tab = "overview" | "quiz" | "blog" | "challenges" | "users" | "community";
 
 export const Admin = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -35,38 +36,44 @@ export const Admin = () => {
     totalChallenges: 0,
     activeCommunityPosts: 0,
   });
-  const [users, setUsers] = useState<Array<{
-    _id: string;
-    email: string;
-    fullName: string;
-    role: 'user' | 'admin';
-    avatarUrl?: string;
-    createdAt: string;
-  }>>([]);
+  const [users, setUsers] = useState<
+    Array<{
+      _id: string;
+      email: string;
+      fullName: string;
+      role: "user" | "admin";
+      avatarUrl?: string;
+      createdAt: string;
+    }>
+  >([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersPage, setUsersPage] = useState(1);
   const [usersTotalPages, setUsersTotalPages] = useState(1);
-  const [communityPosts, setCommunityPosts] = useState<Array<{
-    id: string;
-    content: string;
-    likes: number;
-    created_at: string;
-    user_id: string;
-    profiles: {
-      full_name: string;
-      email: string;
-    };
-  }>>([]);
+  const [communityPosts, setCommunityPosts] = useState<
+    Array<{
+      id: string;
+      content: string;
+      likes: number;
+      created_at: string;
+      user_id: string;
+      profiles: {
+        full_name: string;
+        email: string;
+      };
+    }>
+  >([]);
   const [communityLoading, setCommunityLoading] = useState(false);
-  const [blogPosts, setBlogPosts] = useState<Array<{
-    _id: string;
-    title: string;
-    content: string;
-    author: string;
-    publishedAt: string;
-    isExternal?: boolean;
-    sourceName?: string;
-  }>>([]);
+  const [blogPosts, setBlogPosts] = useState<
+    Array<{
+      _id: string;
+      title: string;
+      content: string;
+      author: string;
+      publishedAt: string;
+      isExternal?: boolean;
+      sourceName?: string;
+    }>
+  >([]);
   const [blogLoading, setBlogLoading] = useState(false);
   const [fetchingBlogs, setFetchingBlogs] = useState(false);
   const { showNotification } = useNotification();
@@ -82,41 +89,41 @@ export const Admin = () => {
   }, [isAdmin]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === 'users') {
+    if (isAdmin && activeTab === "users") {
       loadUsers(usersPage);
     }
   }, [isAdmin, activeTab, usersPage]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === 'community') {
+    if (isAdmin && activeTab === "community") {
       loadCommunityPosts();
     }
   }, [isAdmin, activeTab]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === 'blog') {
+    if (isAdmin && activeTab === "blog") {
       loadBlogPosts();
     }
   }, [isAdmin, activeTab]);
 
   const checkAdminAccess = async () => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     try {
       const profile = await profileApi.getProfile();
 
-      if (profile?.role !== 'admin') {
-        navigate('/dashboard');
+      if (profile?.role !== "admin") {
+        navigate("/dashboard");
         return;
       }
 
       setIsAdmin(true);
     } catch (error) {
-      console.error('Error checking admin access:', error);
-      navigate('/dashboard');
+      console.error("Error checking admin access:", error);
+      navigate("/dashboard");
     } finally {
       setLoading(false);
     }
@@ -133,7 +140,7 @@ export const Admin = () => {
         activeCommunityPosts: data.activeCommunityPosts || 0,
       });
     } catch (error) {
-      console.error('Error loading stats:', error);
+      console.error("Error loading stats:", error);
     }
   };
 
@@ -148,20 +155,23 @@ export const Admin = () => {
         setUsersTotalPages(1);
       }
     } catch (error) {
-      console.error('Error loading users list:', error);
+      console.error("Error loading users list:", error);
     } finally {
       setUsersLoading(false);
     }
   };
 
-  const handleChangeUserRole = async (id: string, newRole: 'user' | 'admin') => {
+  const handleChangeUserRole = async (
+    id: string,
+    newRole: "user" | "admin"
+  ) => {
     try {
       await adminApi.updateUserRole(id, newRole);
       setUsers((prev) =>
         prev.map((u) => (u._id === id ? { ...u, role: newRole } : u))
       );
     } catch (error) {
-      console.error('Error updating user role:', error);
+      console.error("Error updating user role:", error);
     }
   };
 
@@ -171,25 +181,29 @@ export const Admin = () => {
       const response = await communityApi.getPosts();
       setCommunityPosts(response.data || []);
     } catch (error) {
-      console.error('Error loading community posts:', error);
-      showNotification('error', 'Failed to load community posts');
+      console.error("Error loading community posts:", error);
+      showNotification("error", "Failed to load community posts");
     } finally {
       setCommunityLoading(false);
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this post? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       await communityApi.deletePost(postId);
       setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
-      showNotification('success', 'Post deleted successfully');
+      showNotification("success", "Post deleted successfully");
     } catch (error) {
-      console.error('Error deleting post:', error);
-      showNotification('error', 'Failed to delete post');
+      console.error("Error deleting post:", error);
+      showNotification("error", "Failed to delete post");
     }
   };
 
@@ -199,53 +213,91 @@ export const Admin = () => {
       const response = await blogApi.getAll();
       setBlogPosts(response.data || []);
     } catch (error) {
-      console.error('Error loading blog posts:', error);
-      showNotification('error', 'Failed to load blog posts');
+      console.error("Error loading blog posts:", error);
+      showNotification("error", "Failed to load blog posts");
     } finally {
       setBlogLoading(false);
     }
   };
 
   const handleFetchBlogPosts = async () => {
-    if (!confirm('This will fetch and import blog posts from online sources. Continue?')) {
+    if (
+      !confirm(
+        "This will fetch and import blog posts from online sources. Continue?"
+      )
+    ) {
       return;
     }
 
     try {
       setFetchingBlogs(true);
       const response = await blogApi.fetchFromOnline();
-      showNotification('success', `Successfully imported ${response.data?.imported || 0} blog posts`);
+      showNotification(
+        "success",
+        `Successfully imported ${response.data?.imported || 0} blog posts`
+      );
       await loadBlogPosts(); // Reload the list
     } catch (error) {
-      console.error('Error fetching blog posts:', error);
-      showNotification('error', 'Failed to fetch blog posts from online sources');
+      console.error("Error fetching blog posts:", error);
+      showNotification(
+        "error",
+        "Failed to fetch blog posts from online sources"
+      );
     } finally {
       setFetchingBlogs(false);
     }
   };
 
   const handleDeleteBlogPost = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this blog post? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       await blogApi.delete(postId);
-      showNotification('success', 'Blog post deleted successfully');
+      showNotification("success", "Blog post deleted successfully");
       await loadBlogPosts();
     } catch (error) {
-      console.error('Error deleting blog post:', error);
-      showNotification('error', 'Failed to delete blog post');
+      console.error("Error deleting blog post:", error);
+      showNotification("error", "Failed to delete blog post");
     }
   };
 
   const tabs = [
-    { id: 'overview' as Tab, label: language === 'bn' ? 'সারসংক্ষেপ' : 'Overview', icon: LayoutDashboard },
-    { id: 'quiz' as Tab, label: language === 'bn' ? 'কুইজ ব্যবস্থাপনা' : 'Quiz Management', icon: HelpCircle },
-    { id: 'blog' as Tab, label: language === 'bn' ? 'ব্লগ পোস্ট' : 'Blog Posts', icon: FileText },
-    { id: 'community' as Tab, label: language === 'bn' ? 'কমিউনিটি' : 'Community', icon: MessageSquare },
-    { id: 'challenges' as Tab, label: language === 'bn' ? 'চ্যালেঞ্জ' : 'Challenges', icon: Target },
-    { id: 'users' as Tab, label: language === 'bn' ? 'ব্যবহারকারী' : 'Users', icon: Users },
+    {
+      id: "overview" as Tab,
+      label: language === "bn" ? "সারসংক্ষেপ" : "Overview",
+      icon: LayoutDashboard,
+    },
+    {
+      id: "quiz" as Tab,
+      label: language === "bn" ? "কুইজ ব্যবস্থাপনা" : "Quiz Management",
+      icon: HelpCircle,
+    },
+    {
+      id: "blog" as Tab,
+      label: language === "bn" ? "ব্লগ পোস্ট" : "Blog Posts",
+      icon: FileText,
+    },
+    {
+      id: "community" as Tab,
+      label: language === "bn" ? "কমিউনিটি" : "Community",
+      icon: MessageSquare,
+    },
+    {
+      id: "challenges" as Tab,
+      label: language === "bn" ? "চ্যালেঞ্জ" : "Challenges",
+      icon: Target,
+    },
+    {
+      id: "users" as Tab,
+      label: language === "bn" ? "ব্যবহারকারী" : "Users",
+      icon: Users,
+    },
   ];
 
   if (loading) {
@@ -254,7 +306,9 @@ export const Admin = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            {language === 'bn' ? 'অ্যাডমিন অ্যাক্সেস যাচাই করা হচ্ছে...' : 'Verifying admin access...'}
+            {language === "bn"
+              ? "অ্যাডমিন অ্যাক্সেস যাচাই করা হচ্ছে..."
+              : "Verifying admin access..."}
           </p>
         </div>
       </div>
@@ -272,11 +326,13 @@ export const Admin = () => {
           <div className="flex items-center space-x-3 mb-2">
             <Shield className="h-10 w-10 text-emerald-600" />
             <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
-              {language === 'bn' ? 'অ্যাডমিন ড্যাশবোর্ড' : 'Admin Dashboard'}
+              {language === "bn" ? "অ্যাডমিন ড্যাশবোর্ড" : "Admin Dashboard"}
             </h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300">
-            {language === 'bn' ? 'ইকো ট্র্যাক বাংলাদেশের সকল দিক পরিচালনা করুন' : 'Manage all aspects of Eco Track Bangladesh'}
+            {language === "bn"
+              ? "ইকো ট্র্যাক বাংলাদেশের সকল দিক পরিচালনা করুন"
+              : "Manage all aspects of Eco Track Bangladesh"}
           </p>
         </div>
 
@@ -291,10 +347,9 @@ export const Admin = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center space-x-2 px-6 py-4 font-medium transition-all ${
                       activeTab === tab.id
-                        ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
+                        ? "text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20"
+                        : "text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}>
                     <Icon className="h-5 w-5" />
                     <span className="hidden sm:inline">{tab.label}</span>
                   </button>
@@ -304,47 +359,69 @@ export const Admin = () => {
           </div>
 
           <div className="p-6">
-            {activeTab === 'overview' && (
+            {activeTab === "overview" && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                     <div className="flex items-center justify-between mb-4">
                       <Users className="h-10 w-10 opacity-80" />
-                      <span className="text-4xl font-bold">{stats.totalUsers}</span>
+                      <span className="text-4xl font-bold">
+                        {stats.totalUsers}
+                      </span>
                     </div>
-                    <p className="text-blue-100 font-medium">{language === 'bn' ? 'মোট ব্যবহারকারী' : 'Total Users'}</p>
+                    <p className="text-blue-100 font-medium">
+                      {language === "bn" ? "মোট ব্যবহারকারী" : "Total Users"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                     <div className="flex items-center justify-between mb-4">
                       <HelpCircle className="h-10 w-10 opacity-80" />
-                      <span className="text-4xl font-bold">{stats.totalQuizAttempts}</span>
+                      <span className="text-4xl font-bold">
+                        {stats.totalQuizAttempts}
+                      </span>
                     </div>
-                    <p className="text-emerald-100 font-medium">{language === 'bn' ? 'কুইজ প্রচেষ্টা' : 'Quiz Attempts'}</p>
+                    <p className="text-emerald-100 font-medium">
+                      {language === "bn" ? "কুইজ প্রচেষ্টা" : "Quiz Attempts"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                     <div className="flex items-center justify-between mb-4">
                       <FileText className="h-10 w-10 opacity-80" />
-                      <span className="text-4xl font-bold">{stats.totalBlogPosts}</span>
+                      <span className="text-4xl font-bold">
+                        {stats.totalBlogPosts}
+                      </span>
                     </div>
-                    <p className="text-purple-100 font-medium">{language === 'bn' ? 'ব্লগ পোস্ট' : 'Blog Posts'}</p>
+                    <p className="text-purple-100 font-medium">
+                      {language === "bn" ? "ব্লগ পোস্ট" : "Blog Posts"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                     <div className="flex items-center justify-between mb-4">
                       <Target className="h-10 w-10 opacity-80" />
-                      <span className="text-4xl font-bold">{stats.totalChallenges}</span>
+                      <span className="text-4xl font-bold">
+                        {stats.totalChallenges}
+                      </span>
                     </div>
-                    <p className="text-teal-100 font-medium">{language === 'bn' ? 'দৈনিক চ্যালেঞ্জ' : 'Daily Challenges'}</p>
+                    <p className="text-teal-100 font-medium">
+                      {language === "bn"
+                        ? "দৈনিক চ্যালেঞ্জ"
+                        : "Daily Challenges"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                     <div className="flex items-center justify-between mb-4">
                       <BarChart3 className="h-10 w-10 opacity-80" />
-                      <span className="text-4xl font-bold">{stats.activeCommunityPosts}</span>
+                      <span className="text-4xl font-bold">
+                        {stats.activeCommunityPosts}
+                      </span>
                     </div>
-                    <p className="text-pink-100 font-medium">{language === 'bn' ? 'কমিউনিটি পোস্ট' : 'Community Posts'}</p>
+                    <p className="text-pink-100 font-medium">
+                      {language === "bn" ? "কমিউনিটি পোস্ট" : "Community Posts"}
+                    </p>
                   </div>
                 </div>
 
@@ -353,24 +430,42 @@ export const Admin = () => {
                     <Settings className="h-8 w-8 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                        {language === 'bn' ? 'অ্যাডমিন বৈশিষ্ট্য' : 'Admin Features'}
+                        {language === "bn"
+                          ? "অ্যাডমিন বৈশিষ্ট্য"
+                          : "Admin Features"}
                       </h3>
                       <ul className="space-y-2 text-gray-700 dark:text-gray-200">
                         <li className="flex items-center space-x-2">
                           <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
-                          <span>{language === 'bn' ? 'কুইজ প্রশ্ন ও উত্তর পরিচালনা' : 'Manage quiz questions and answers'}</span>
+                          <span>
+                            {language === "bn"
+                              ? "কুইজ প্রশ্ন ও উত্তর পরিচালনা"
+                              : "Manage quiz questions and answers"}
+                          </span>
                         </li>
                         <li className="flex items-center space-x-2">
                           <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
-                          <span>{language === 'bn' ? 'কমিউনিটি কন্টেন্ট দেখুন ও মডারেট করুন' : 'View and moderate community content'}</span>
+                          <span>
+                            {language === "bn"
+                              ? "কমিউনিটি কন্টেন্ট দেখুন ও মডারেট করুন"
+                              : "View and moderate community content"}
+                          </span>
                         </li>
                         <li className="flex items-center space-x-2">
                           <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
-                          <span>{language === 'bn' ? 'ব্যবহারকারীর কার্যকলাপ পর্যবেক্ষণ করুন' : 'Monitor user activity and engagement'}</span>
+                          <span>
+                            {language === "bn"
+                              ? "ব্যবহারকারীর কার্যকলাপ পর্যবেক্ষণ করুন"
+                              : "Monitor user activity and engagement"}
+                          </span>
                         </li>
                         <li className="flex items-center space-x-2">
                           <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
-                          <span>{language === 'bn' ? 'ব্লগ কন্টেন্ট ও চ্যালেঞ্জ পরিচালনা' : 'Manage blog content and challenges'}</span>
+                          <span>
+                            {language === "bn"
+                              ? "ব্লগ কন্টেন্ট ও চ্যালেঞ্জ পরিচালনা"
+                              : "Manage blog content and challenges"}
+                          </span>
                         </li>
                       </ul>
                     </div>
@@ -379,39 +474,54 @@ export const Admin = () => {
               </div>
             )}
 
-            {activeTab === 'quiz' && <AdminQuizManager />}
+            {activeTab === "quiz" && <AdminQuizManager />}
 
-            {activeTab === 'blog' && (
+            {activeTab === "blog" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                    {language === 'bn' ? 'ব্লগ পোস্ট ব্যবস্থাপনা' : 'Blog Posts Management'}
+                    {language === "bn"
+                      ? "ব্লগ পোস্ট ব্যবস্থাপনা"
+                      : "Blog Posts Management"}
                   </h2>
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={handleFetchBlogPosts}
                       disabled={fetchingBlogs}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                    >
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
                       {fetchingBlogs ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>{language === 'bn' ? 'আনা হচ্ছে...' : 'Fetching...'}</span>
+                          <span>
+                            {language === "bn" ? "আনা হচ্ছে..." : "Fetching..."}
+                          </span>
                         </>
                       ) : (
                         <>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
                           </svg>
-                          <span>{language === 'bn' ? 'অনলাইন থেকে আনুন' : 'Fetch from Online'}</span>
+                          <span>
+                            {language === "bn"
+                              ? "অনলাইন থেকে আনুন"
+                              : "Fetch from Online"}
+                          </span>
                         </>
                       )}
                     </button>
                     <button
                       onClick={loadBlogPosts}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-                    >
-                      {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
+                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                      {language === "bn" ? "রিফ্রেশ" : "Refresh"}
                     </button>
                   </div>
                 </div>
@@ -423,16 +533,23 @@ export const Admin = () => {
                 ) : blogPosts.length === 0 ? (
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center text-gray-600 dark:text-gray-300">
                     <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-xl mb-4">{language === 'bn' ? 'কোনো ব্লগ পোস্ট পাওয়া যায়নি।' : 'No blog posts found.'}</p>
-                    <p className="text-sm mb-4">{language === 'bn' ? 'পরিবেশ বিষয়ক আর্টিকেল আমদানি করতে "অনলাইন থেকে আনুন" ক্লিক করুন।' : 'Click "Fetch from Online" to import environmental articles.'}</p>
+                    <p className="text-xl mb-4">
+                      {language === "bn"
+                        ? "কোনো ব্লগ পোস্ট পাওয়া যায়নি।"
+                        : "No blog posts found."}
+                    </p>
+                    <p className="text-sm mb-4">
+                      {language === "bn"
+                        ? 'পরিবেশ বিষয়ক আর্টিকেল আমদানি করতে "অনলাইন থেকে আনুন" ক্লিক করুন।'
+                        : 'Click "Fetch from Online" to import environmental articles.'}
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {blogPosts.map((post) => (
                       <div
                         key={post._id}
-                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
-                      >
+                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
@@ -450,7 +567,11 @@ export const Admin = () => {
                                 <User className="h-4 w-4" />
                                 <span>{post.author}</span>
                               </span>
-                              <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                              <span>
+                                {new Date(
+                                  post.publishedAt
+                                ).toLocaleDateString()}
+                              </span>
                               {post.sourceName && (
                                 <span className="text-emerald-600 dark:text-emerald-400">
                                   Source: {post.sourceName}
@@ -464,8 +585,7 @@ export const Admin = () => {
                           <button
                             onClick={() => handleDeleteBlogPost(post._id)}
                             className="ml-4 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Delete blog post"
-                          >
+                            title="Delete blog post">
                             <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
@@ -476,17 +596,18 @@ export const Admin = () => {
               </div>
             )}
 
-            {activeTab === 'community' && (
+            {activeTab === "community" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                    {language === 'bn' ? 'কমিউনিটি পোস্ট ব্যবস্থাপনা' : 'Community Posts Management'}
+                    {language === "bn"
+                      ? "কমিউনিটি পোস্ট ব্যবস্থাপনা"
+                      : "Community Posts Management"}
                   </h2>
                   <button
                     onClick={loadCommunityPosts}
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
-                  >
-                    {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm">
+                    {language === "bn" ? "রিফ্রেশ" : "Refresh"}
                   </button>
                 </div>
 
@@ -496,21 +617,24 @@ export const Admin = () => {
                   </div>
                 ) : communityPosts.length === 0 ? (
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center text-gray-600 dark:text-gray-300">
-                    {language === 'bn' ? 'কোনো কমিউনিটি পোস্ট পাওয়া যায়নি।' : 'No community posts found.'}
+                    {language === "bn"
+                      ? "কোনো কমিউনিটি পোস্ট পাওয়া যায়নি।"
+                      : "No community posts found."}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {communityPosts.map((post) => (
                       <div
                         key={post.id}
-                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
-                      >
+                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
                                 <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                  {post.profiles.full_name.charAt(0).toUpperCase()}
+                                  {post.profiles.full_name
+                                    .charAt(0)
+                                    .toUpperCase()}
                                 </span>
                               </div>
                               <div>
@@ -538,8 +662,7 @@ export const Admin = () => {
                           <button
                             onClick={() => handleDeletePost(post.id)}
                             className="ml-4 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Delete post"
-                          >
+                            title="Delete post">
                             <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
@@ -550,10 +673,12 @@ export const Admin = () => {
               </div>
             )}
 
-            {activeTab === 'users' && (
+            {activeTab === "users" && (
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-                  {language === 'bn' ? 'ব্যবহারকারী ব্যবস্থাপনা' : 'User Management'}
+                  {language === "bn"
+                    ? "ব্যবহারকারী ব্যবস্থাপনা"
+                    : "User Management"}
                 </h2>
 
                 {usersLoading ? (
@@ -562,7 +687,9 @@ export const Admin = () => {
                   </div>
                 ) : users.length === 0 ? (
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center text-gray-600 dark:text-gray-300">
-                    {language === 'bn' ? 'কোনো ব্যবহারকারী পাওয়া যায়নি।' : 'No users found.'}
+                    {language === "bn"
+                      ? "কোনো ব্যবহারকারী পাওয়া যায়নি।"
+                      : "No users found."}
                   </div>
                 ) : (
                   <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
@@ -570,19 +697,19 @@ export const Admin = () => {
                       <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {language === 'bn' ? 'নাম' : 'Name'}
+                            {language === "bn" ? "নাম" : "Name"}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {language === 'bn' ? 'ইমেইল' : 'Email'}
+                            {language === "bn" ? "ইমেইল" : "Email"}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {language === 'bn' ? 'ভূমিকা' : 'Role'}
+                            {language === "bn" ? "ভূমিকা" : "Role"}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {language === 'bn' ? 'যোগদান' : 'Joined'}
+                            {language === "bn" ? "যোগদান" : "Joined"}
                           </th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {language === 'bn' ? 'অ্যাকশন' : 'Actions'}
+                            {language === "bn" ? "অ্যাকশন" : "Actions"}
                           </th>
                         </tr>
                       </thead>
@@ -598,11 +725,10 @@ export const Admin = () => {
                             <td className="px-4 py-3 whitespace-nowrap">
                               <span
                                 className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                                  u.role === 'admin'
-                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-200'
-                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200'
-                                }`}
-                              >
+                                  u.role === "admin"
+                                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-200"
+                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                                }`}>
                                 {u.role}
                               </span>
                             </td>
@@ -615,17 +741,16 @@ export const Admin = () => {
                                 onChange={(e) =>
                                   handleChangeUserRole(
                                     u._id,
-                                    e.target.value as 'user' | 'admin'
+                                    e.target.value as "user" | "admin"
                                   )
                                 }
                                 className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 disabled={user?.id === u._id}
                                 title={
                                   user?.id === u._id
-                                    ? 'You cannot change your own role'
-                                    : 'Change user role'
-                                }
-                              >
+                                    ? "You cannot change your own role"
+                                    : "Change user role"
+                                }>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                               </select>
@@ -642,43 +767,51 @@ export const Admin = () => {
                     <button
                       className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
                       onClick={() => setUsersPage((p) => Math.max(1, p - 1))}
-                      disabled={usersPage === 1}
-                    >
-                      {language === 'bn' ? 'আগের' : 'Previous'}
+                      disabled={usersPage === 1}>
+                      {language === "bn" ? "আগের" : "Previous"}
                     </button>
                     <span className="text-sm text-gray-600 dark:text-gray-300">
-                      {language === 'bn' ? `পৃষ্ঠা ${usersPage} / ${usersTotalPages}` : `Page ${usersPage} of ${usersTotalPages}`}
+                      {language === "bn"
+                        ? `পৃষ্ঠা ${usersPage} / ${usersTotalPages}`
+                        : `Page ${usersPage} of ${usersTotalPages}`}
                     </span>
                     <button
                       className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
                       onClick={() =>
                         setUsersPage((p) => Math.min(usersTotalPages, p + 1))
                       }
-                      disabled={usersPage === usersTotalPages}
-                    >
-                      {language === 'bn' ? 'পরের' : 'Next'}
+                      disabled={usersPage === usersTotalPages}>
+                      {language === "bn" ? "পরের" : "Next"}
                     </button>
                   </div>
                 )}
               </div>
             )}
 
-            {activeTab !== 'overview' && activeTab !== 'quiz' && activeTab !== 'users' && activeTab !== 'community' && activeTab !== 'blog' && (
-              <div className="text-center py-12">
-                <div className="inline-block p-6 bg-gray-100 dark:bg-gray-700 rounded-full mb-6">
-                  <Settings className="h-16 w-16 text-gray-400" />
+            {activeTab !== "overview" &&
+              activeTab !== "quiz" &&
+              activeTab !== "users" &&
+              activeTab !== "community" &&
+              activeTab !== "blog" && (
+                <div className="text-center py-12">
+                  <div className="inline-block p-6 bg-gray-100 dark:bg-gray-700 rounded-full mb-6">
+                    <Settings className="h-16 w-16 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                    {tabs.find((t) => t.id === activeTab)?.label}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    {language === "bn"
+                      ? "ম্যানেজমেন্ট ইন্টারফেস শীঘ্রই আসছে"
+                      : "Management interface coming soon"}
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {language === "bn"
+                      ? "এই বিভাগটি ডেভেলপমেন্টের অধীনে এবং পরবর্তী আপডেটে উপলব্ধ হবে"
+                      : "This section is under development and will be available in the next update"}
+                  </p>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-                  {tabs.find(t => t.id === activeTab)?.label}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Management interface coming soon
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  This section is under development and will be available in the next update
-                </p>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>

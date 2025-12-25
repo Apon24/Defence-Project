@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { blogApi } from '../lib/api';
-import { BookOpen, Calendar, User } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { blogApi } from "../lib/api";
+import { BookOpen, Calendar, User } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -17,7 +17,7 @@ interface BlogPost {
 }
 
 export const Blog = () => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,16 +29,19 @@ export const Blog = () => {
   const loadPosts = async () => {
     try {
       const response = await blogApi.getAll();
-      console.log('Blog API response:', response); // Debug log
-      
+      console.log("Blog API response:", response); // Debug log
+
       // Handle different response formats
       const postsData = response.data || response || [];
       setPosts(postsData);
     } catch (error: any) {
-      console.error('Error loading blog posts:', error);
+      console.error("Error loading blog posts:", error);
       // Show user-friendly error message
-      if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
-        console.log('User may need to log in to view blog posts');
+      if (
+        error.message?.includes("401") ||
+        error.message?.includes("Unauthorized")
+      ) {
+        console.log("User may need to log in to view blog posts");
       }
     } finally {
       setLoading(false);
@@ -46,18 +49,23 @@ export const Blog = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return new Date(dateString).toLocaleDateString(
+      language === "bn" ? "bn-BD" : "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-xl text-gray-600 dark:text-gray-300">
-          {language === 'bn' ? 'ব্লগ পোস্ট লোড হচ্ছে...' : 'Loading blog posts...'}
+          {language === "bn"
+            ? "ব্লগ পোস্ট লোড হচ্ছে..."
+            : "Loading blog posts..."}
         </div>
       </div>
     );
@@ -69,9 +77,8 @@ export const Blog = () => {
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedPost(null)}
-            className="mb-6 px-4 py-2 text-green-600 hover:text-green-700 font-semibold"
-          >
-            ← {language === 'bn' ? 'ব্লগে ফিরে যান' : 'Back to Blog'}
+            className="mb-6 px-4 py-2 text-green-600 hover:text-green-700 font-semibold">
+            ← {language === "bn" ? "ব্লগে ফিরে যান" : "Back to Blog"}
           </button>
 
           <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
@@ -100,32 +107,44 @@ export const Blog = () => {
               </div>
 
               <div className="prose dark:prose-invert max-w-none">
-                <div 
+                <div
                   className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap"
                   style={{
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    lineHeight: '1.8',
-                    fontSize: '1.125rem'
-                  }}
-                >
-                  {selectedPost.content.split('\n').map((paragraph, index) => (
+                    fontFamily: "system-ui, -apple-system, sans-serif",
+                    lineHeight: "1.8",
+                    fontSize: "1.125rem",
+                  }}>
+                  {selectedPost.content.split("\n").map((paragraph, index) =>
                     paragraph.trim() ? (
-                      <p key={index} className="mb-4">{paragraph}</p>
+                      <p key={index} className="mb-4">
+                        {paragraph}
+                      </p>
                     ) : null
-                  ))}
+                  )}
                 </div>
-                
+
                 {selectedPost.isExternal && selectedPost.sourceUrl && (
                   <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <a
                       href={selectedPost.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-emerald-600 hover:text-emerald-700 font-semibold"
-                    >
-                      <span>Read full article on {selectedPost.sourceName || 'source'}</span>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      className="inline-flex items-center space-x-2 text-emerald-600 hover:text-emerald-700 font-semibold">
+                      <span>
+                        Read full article on{" "}
+                        {selectedPost.sourceName || "source"}
+                      </span>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
                       </svg>
                     </a>
                   </div>
@@ -144,11 +163,11 @@ export const Blog = () => {
         <div className="text-center mb-12">
           <BookOpen className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            {language === 'bn' ? 'পরিবেশ ব্লগ' : 'Environmental Blog'}
+            {language === "bn" ? "পরিবেশ ব্লগ" : "Environmental Blog"}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            {language === 'bn' 
-              ? 'বাংলাদেশের পরিবেশ সম্পর্কে গল্প, অন্তর্দৃষ্টি এবং আপডেট' 
+            {language === "bn"
+              ? "বাংলাদেশের পরিবেশ সম্পর্কে গল্প, অন্তর্দৃষ্টি এবং আপডেট"
               : "Stories, insights, and updates about Bangladesh's environment"}
           </p>
         </div>
@@ -157,9 +176,9 @@ export const Blog = () => {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              {language === 'bn' 
-                ? 'এখনও কোনো ব্লগ পোস্ট নেই। শীঘ্রই আবার দেখুন!' 
-                : 'No blog posts available yet. Check back soon!'}
+              {language === "bn"
+                ? "এখনও কোনো ব্লগ পোস্ট নেই। শীঘ্রই আবার দেখুন!"
+                : "No blog posts available yet. Check back soon!"}
             </p>
           </div>
         ) : (
@@ -168,8 +187,7 @@ export const Blog = () => {
               <article
                 key={post.id}
                 onClick={() => setSelectedPost(post)}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1"
-              >
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1">
                 {post.imageUrl && (
                   <img
                     src={post.imageUrl}
@@ -185,13 +203,13 @@ export const Blog = () => {
 
                   <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
                     {post.excerpt || post.content.substring(0, 150)}
-                    {!post.excerpt && post.content.length > 150 && '...'}
+                    {!post.excerpt && post.content.length > 150 && "..."}
                   </p>
-                  
+
                   {post.isExternal && (
                     <div className="mb-2">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                        {language === 'bn' ? 'বহিরাগত উৎস' : 'External Source'}
+                        {language === "bn" ? "বহিরাগত উৎস" : "External Source"}
                       </span>
                     </div>
                   )}
@@ -208,7 +226,7 @@ export const Blog = () => {
                   </div>
 
                   <button className="mt-4 text-green-600 hover:text-green-700 font-semibold">
-                    {language === 'bn' ? 'আরও পড়ুন →' : 'Read More →'}
+                    {language === "bn" ? "আরও পড়ুন →" : "Read More →"}
                   </button>
                 </div>
               </article>

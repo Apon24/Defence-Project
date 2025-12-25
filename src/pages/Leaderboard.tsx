@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { useNavigate } from 'react-router-dom';
-import { leaderboardApi } from '../lib/api';
-import { Trophy, Award } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
+import { leaderboardApi } from "../lib/api";
+import { Trophy, Award } from "lucide-react";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -24,7 +24,7 @@ export const Leaderboard = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     loadLeaderboard();
@@ -35,7 +35,7 @@ export const Leaderboard = () => {
       const response = await leaderboardApi.get();
       setLeaders(response.data || []);
     } catch (error) {
-      console.error('Error loading leaderboard:', error);
+      console.error("Error loading leaderboard:", error);
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,9 @@ export const Leaderboard = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-xl text-gray-600 dark:text-gray-300">
-          {language === 'bn' ? 'লিডারবোর্ড লোড হচ্ছে...' : 'Loading leaderboard...'}
+          {language === "bn"
+            ? "লিডারবোর্ড লোড হচ্ছে..."
+            : "Loading leaderboard..."}
         </div>
       </div>
     );
@@ -57,29 +59,45 @@ export const Leaderboard = () => {
         <div className="flex items-center mb-8">
           <Trophy className="h-12 w-12 text-yellow-500 mr-4" />
           <div>
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-white">{t('leaderboard.title')}</h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">{t('leaderboard.subtitle')}</p>
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
+              {t("leaderboard.title")}
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              {t("leaderboard.subtitle")}
+            </p>
           </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           {leaders.length === 0 ? (
             <div className="p-12 text-center text-gray-600 dark:text-gray-300">
-              {language === 'bn' 
-                ? 'এখনও কোন ডাটা নেই। প্রথম প্রভাব তৈরি করুন!'
-                : 'No data available yet. Be the first to make an impact!'}
+              {language === "bn"
+                ? "এখনও কোন ডাটা নেই। প্রথম প্রভাব তৈরি করুন!"
+                : "No data available yet. Be the first to make an impact!"}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-green-600 text-white">
                   <tr>
-                    <th className="px-6 py-4 text-left">{language === 'bn' ? 'র‍্যাংক' : 'Rank'}</th>
-                    <th className="px-6 py-4 text-left">{language === 'bn' ? 'ব্যবহারকারী' : 'User'}</th>
-                    <th className="px-6 py-4 text-center">{language === 'bn' ? 'কুইজ' : 'Quizzes'}</th>
-                    <th className="px-6 py-4 text-center">{language === 'bn' ? 'গড় স্কোর' : 'Avg Score'}</th>
-                    <th className="px-6 py-4 text-center">{language === 'bn' ? 'চ্যালেঞ্জ' : 'Challenges'}</th>
-                    <th className="px-6 py-4 text-center">{language === 'bn' ? 'ব্যাজ' : 'Badges'}</th>
+                    <th className="px-6 py-4 text-left">
+                      {language === "bn" ? "র‍্যাংক" : "Rank"}
+                    </th>
+                    <th className="px-6 py-4 text-left">
+                      {language === "bn" ? "ব্যবহারকারী" : "User"}
+                    </th>
+                    <th className="px-6 py-4 text-center">
+                      {language === "bn" ? "কুইজ" : "Quizzes"}
+                    </th>
+                    <th className="px-6 py-4 text-center">
+                      {language === "bn" ? "গড় স্কোর" : "Avg Score"}
+                    </th>
+                    <th className="px-6 py-4 text-center">
+                      {language === "bn" ? "চ্যালেঞ্জ" : "Challenges"}
+                    </th>
+                    <th className="px-6 py-4 text-center">
+                      {language === "bn" ? "ব্যাজ" : "Badges"}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -87,17 +105,22 @@ export const Leaderboard = () => {
                     <tr
                       key={leader.user_id}
                       className={`border-b border-gray-200 dark:border-gray-700 ${
-                        leader.user_id === user?.id ? 'bg-green-50 dark:bg-green-900' : ''
-                      }`}
-                    >
+                        leader.user_id === user?.id
+                          ? "bg-green-50 dark:bg-green-900"
+                          : ""
+                      }`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           {index < 3 ? (
-                            <Trophy className={`h-6 w-6 mr-2 ${
-                              index === 0 ? 'text-yellow-500' :
-                              index === 1 ? 'text-gray-400' :
-                              'text-orange-600'
-                            }`} />
+                            <Trophy
+                              className={`h-6 w-6 mr-2 ${
+                                index === 0
+                                  ? "text-yellow-500"
+                                  : index === 1
+                                  ? "text-gray-400"
+                                  : "text-orange-600"
+                              }`}
+                            />
                           ) : (
                             <span className="text-lg font-bold text-gray-600 dark:text-gray-300 mr-2">
                               {index + 1}
@@ -109,7 +132,9 @@ export const Leaderboard = () => {
                         <div className="font-semibold text-gray-800 dark:text-white">
                           {leader.full_name}
                           {leader.user_id === user?.id && (
-                            <span className="ml-2 text-xs text-green-600 dark:text-green-400">(You)</span>
+                            <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                              (You)
+                            </span>
                           )}
                         </div>
                       </td>

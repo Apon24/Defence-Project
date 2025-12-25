@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { challengesApi } from '../lib/api';
-import { Trophy, CheckCircle, Circle, Plus, Trash2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { challengesApi } from "../lib/api";
+import { Trophy, CheckCircle, Circle, Plus, Trash2 } from "lucide-react";
 
 interface Challenge {
   id: string;
@@ -12,23 +12,23 @@ interface Challenge {
 }
 
 const defaultChallenges = [
-  'Use public transport or carpool',
-  'Avoid using plastic bags',
-  'Turn off lights when leaving a room',
-  'Use reusable water bottle',
-  'Recycle paper and plastic waste',
-  'Take shorter showers',
-  'Unplug unused electronics',
-  'Eat a plant-based meal',
-  'Walk or cycle instead of driving',
-  'Compost food waste',
+  "Use public transport or carpool",
+  "Avoid using plastic bags",
+  "Turn off lights when leaving a room",
+  "Use reusable water bottle",
+  "Recycle paper and plastic waste",
+  "Take shorter showers",
+  "Unplug unused electronics",
+  "Eat a plant-based meal",
+  "Walk or cycle instead of driving",
+  "Compost food waste",
 ];
 
 export const Challenges = () => {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [newChallenge, setNewChallenge] = useState('');
+  const [newChallenge, setNewChallenge] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,14 +71,14 @@ export const Challenges = () => {
         setChallenges(normalized);
       }
     } catch (error) {
-      console.error('Error loading challenges:', error);
+      console.error("Error loading challenges:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const loadLocalChallenges = () => {
-    const saved = localStorage.getItem('challenges');
+    const saved = localStorage.getItem("challenges");
     if (saved) {
       setChallenges(JSON.parse(saved));
     } else {
@@ -88,7 +88,7 @@ export const Challenges = () => {
         completed: false,
       }));
       setChallenges(initial);
-      localStorage.setItem('challenges', JSON.stringify(initial));
+      localStorage.setItem("challenges", JSON.stringify(initial));
     }
     setLoading(false);
   };
@@ -105,19 +105,25 @@ export const Challenges = () => {
         setChallenges(
           challenges.map((c) =>
             c.id === challengeId
-              ? { ...c, completed: updatedCompleted, completedAt: updatedCompleted ? new Date().toISOString() : undefined }
+              ? {
+                  ...c,
+                  completed: updatedCompleted,
+                  completedAt: updatedCompleted
+                    ? new Date().toISOString()
+                    : undefined,
+                }
               : c
           )
         );
       } catch (error) {
-        console.error('Error updating challenge:', error);
+        console.error("Error updating challenge:", error);
       }
     } else {
       const updated = challenges.map((c) =>
         c.id === challengeId ? { ...c, completed: updatedCompleted } : c
       );
       setChallenges(updated);
-      localStorage.setItem('challenges', JSON.stringify(updated));
+      localStorage.setItem("challenges", JSON.stringify(updated));
     }
   };
 
@@ -131,7 +137,7 @@ export const Challenges = () => {
         const normalized = (response.data || []).map(normalizeChallenge);
         setChallenges(normalized);
       } catch (error) {
-        console.error('Error adding challenge:', error);
+        console.error("Error adding challenge:", error);
       }
     } else {
       const newChallengeObj: Challenge = {
@@ -141,10 +147,10 @@ export const Challenges = () => {
       };
       const updated = [...challenges, newChallengeObj];
       setChallenges(updated);
-      localStorage.setItem('challenges', JSON.stringify(updated));
+      localStorage.setItem("challenges", JSON.stringify(updated));
     }
 
-    setNewChallenge('');
+    setNewChallenge("");
   };
 
   const deleteChallenge = async (challengeId: string) => {
@@ -153,23 +159,26 @@ export const Challenges = () => {
         await challengesApi.delete(challengeId);
         setChallenges(challenges.filter((c) => c.id !== challengeId));
       } catch (error) {
-        console.error('Error deleting challenge:', error);
+        console.error("Error deleting challenge:", error);
       }
     } else {
       const updated = challenges.filter((c) => c.id !== challengeId);
       setChallenges(updated);
-      localStorage.setItem('challenges', JSON.stringify(updated));
+      localStorage.setItem("challenges", JSON.stringify(updated));
     }
   };
 
   const completedCount = challenges.filter((c) => c.completed).length;
-  const progress = challenges.length > 0 ? (completedCount / challenges.length) * 100 : 0;
+  const progress =
+    challenges.length > 0 ? (completedCount / challenges.length) * 100 : 0;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-xl text-gray-600 dark:text-gray-300">
-          {language === 'bn' ? 'চ্যালেঞ্জ লোড হচ্ছে...' : 'Loading challenges...'}
+          {language === "bn"
+            ? "চ্যালেঞ্জ লোড হচ্ছে..."
+            : "Loading challenges..."}
         </div>
       </div>
     );
@@ -181,10 +190,10 @@ export const Challenges = () => {
         <div className="text-center mb-12">
           <Trophy className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            {t('challenges.title')}
+            {t("challenges.title")}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            {t('challenges.subtitle')}
+            {t("challenges.subtitle")}
           </p>
         </div>
 
@@ -192,7 +201,7 @@ export const Challenges = () => {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-semibold text-gray-800 dark:text-white">
-                {language === 'bn' ? 'আজকের অগ্রগতি' : "Today's Progress"}
+                {language === "bn" ? "আজকের অগ্রগতি" : "Today's Progress"}
               </span>
               <span className="text-2xl font-bold text-green-600">
                 {completedCount} / {challenges.length}
@@ -209,9 +218,9 @@ export const Challenges = () => {
           {progress === 100 && challenges.length > 0 && (
             <div className="bg-gradient-to-r from-green-100 to-yellow-100 dark:from-green-900 dark:to-yellow-900 p-4 rounded-lg mb-6 text-center">
               <p className="text-lg font-bold text-green-800 dark:text-green-200">
-                {language === 'bn' 
-                  ? 'অভিনন্দন! আপনি আজ সব চ্যালেঞ্জ সম্পন্ন করেছেন!' 
-                  : 'Congratulations! You completed all challenges today!'}
+                {language === "bn"
+                  ? "অভিনন্দন! আপনি আজ সব চ্যালেঞ্জ সম্পন্ন করেছেন!"
+                  : "Congratulations! You completed all challenges today!"}
               </p>
             </div>
           )}
@@ -222,11 +231,10 @@ export const Challenges = () => {
                 key={challenge.id}
                 className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all cursor-pointer ${
                   challenge.completed
-                    ? 'bg-green-50 dark:bg-green-900 border-green-500'
-                    : 'bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                    ? "bg-green-50 dark:bg-green-900 border-green-500"
+                    : "bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600"
                 }`}
-                onClick={() => toggleChallenge(challenge.id)}
-              >
+                onClick={() => toggleChallenge(challenge.id)}>
                 <div className="flex items-center flex-1">
                   <div className="mr-4">
                     {challenge.completed ? (
@@ -238,10 +246,9 @@ export const Challenges = () => {
                   <span
                     className={`text-lg ${
                       challenge.completed
-                        ? 'line-through text-gray-500 dark:text-gray-400'
-                        : 'text-gray-800 dark:text-white'
-                    }`}
-                  >
+                        ? "line-through text-gray-500 dark:text-gray-400"
+                        : "text-gray-800 dark:text-white"
+                    }`}>
                     {challenge.challengeName}
                   </span>
                 </div>
@@ -250,8 +257,7 @@ export const Challenges = () => {
                     e.stopPropagation();
                     deleteChallenge(challenge.id);
                   }}
-                  className="text-red-500 hover:text-red-700 transition-colors"
-                >
+                  className="text-red-500 hover:text-red-700 transition-colors">
                   <Trash2 className="h-5 w-5" />
                 </button>
               </div>
@@ -263,27 +269,32 @@ export const Challenges = () => {
               type="text"
               value={newChallenge}
               onChange={(e) => setNewChallenge(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addChallenge()}
-              placeholder={language === 'bn' ? 'নতুন চ্যালেঞ্জ যোগ করুন...' : 'Add a new challenge...'}
+              onKeyPress={(e) => e.key === "Enter" && addChallenge()}
+              placeholder={
+                language === "bn"
+                  ? "নতুন চ্যালেঞ্জ যোগ করুন..."
+                  : "Add a new challenge..."
+              }
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
             />
             <button
               onClick={addChallenge}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-            >
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
               <Plus className="h-5 w-5" />
-              <span>{language === 'bn' ? 'যোগ করুন' : 'Add'}</span>
+              <span>{language === "bn" ? "যোগ করুন" : "Add"}</span>
             </button>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-green-600 to-red-600 rounded-2xl p-8 text-white">
           <h3 className="text-2xl font-bold mb-4">
-            {language === 'bn' ? 'স্থায়ী অভ্যাস গড়ে তুলুন' : 'Build Lasting Habits'}
+            {language === "bn"
+              ? "স্থায়ী অভ্যাস গড়ে তুলুন"
+              : "Build Lasting Habits"}
           </h3>
           <p className="text-green-50">
-            {language === 'bn' 
-              ? 'টেকসই জীবনযাত্রা তৈরিতে ধারাবাহিকতা মূল চাবিকাঠি। এই দৈনিক চ্যালেঞ্জগুলি সম্পন্ন করে, আপনি বাংলাদেশের পরিবেশের জন্য সত্যিকারের পার্থক্য তৈরি করছেন। প্রতিটি ছোট পদক্ষেপ সময়ের সাথে উল্লেখযোগ্য ইতিবাচক পরিবর্তন যোগ করে।'
+            {language === "bn"
+              ? "টেকসই জীবনযাত্রা তৈরিতে ধারাবাহিকতা মূল চাবিকাঠি। এই দৈনিক চ্যালেঞ্জগুলি সম্পন্ন করে, আপনি বাংলাদেশের পরিবেশের জন্য সত্যিকারের পার্থক্য তৈরি করছেন। প্রতিটি ছোট পদক্ষেপ সময়ের সাথে উল্লেখযোগ্য ইতিবাচক পরিবর্তন যোগ করে।"
               : "Consistency is key to creating a sustainable lifestyle. By completing these daily challenges, you are making a real difference for Bangladesh's environment. Each small action adds up to significant positive change over time."}
           </p>
         </div>
