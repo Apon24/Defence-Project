@@ -11,7 +11,6 @@ import {
   UserPlus,
   Shield,
   ChevronDown,
-  Globe,
   CloudSun,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
@@ -26,7 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export const Navbar = () => {
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -220,19 +219,6 @@ export const Navbar = () => {
                 </span>
               </div>
             )}
-
-            {/* Language Toggle Button */}
-            <button
-              onClick={toggleLanguage}
-              className="language-toggle flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-white text-sm font-medium shadow-md"
-              title={
-                language === "bn"
-                  ? "Switch to English"
-                  : "বাংলায় পরিবর্তন করুন"
-              }>
-              <Globe className="h-4 w-4" />
-              <span>{t("language.toggle")}</span>
-            </button>
 
             <button
               onClick={toggleTheme}
