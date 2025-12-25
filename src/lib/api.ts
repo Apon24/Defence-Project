@@ -61,6 +61,17 @@ export const authApi = {
     return authFetch("/auth/me");
   },
 
+  verifyEmail: async (email: string, code: string) => {
+    const data = await authFetch("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    });
+    if (data.data?.token) {
+      localStorage.setItem("token", data.data.token);
+    }
+    return data;
+  },
+
   logout: () => {
     localStorage.removeItem("token");
   },

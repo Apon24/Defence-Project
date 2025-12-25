@@ -1,5 +1,7 @@
 import QuizQuestion from '../models/QuizQuestion.js';
 import QuizAttempt from '../models/QuizAttempt.js';
+import User from '../models/User.js';
+import { sendQuizCompletionEmail } from '../services/emailService.js';
 
 // @desc    Get active quiz questions
 // @route   GET /api/quiz/questions
@@ -219,6 +221,14 @@ export const submitAttempt = async (req, res, next) => {
         isCorrect: a.isCorrect
       }))
     });
+
+    // Send completion email
+    const user = await User.findById(req.user._id);
+    if (user) {
+      sendQuizCompletionEmail(user.email, user.fullName, correctAnswers, totalQuestions).catch(err => 
+        console.error('Failed to send quiz completion email:', err)
+      );
+    }
 
     res.status(201).json({
       success: true,

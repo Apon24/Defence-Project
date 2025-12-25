@@ -44,8 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const response = await authApi.signup(email, password, fullName);
-    setUser(response.data.user);
+    await authApi.signup(email, password, fullName);
+    // Don't set user here as they need to verify email first
   };
 
   const signIn = async (email: string, password: string) => {

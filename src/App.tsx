@@ -14,6 +14,7 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
+import { VerifyEmail } from "./pages/VerifyEmail";
 import { Quiz } from "./pages/Quiz";
 import { Calculator } from "./pages/Calculator";
 import { Tips } from "./pages/Tips";
@@ -54,6 +55,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/quiz" element={<Quiz />} />
                     <Route path="/calculator" element={<Calculator />} />
                     <Route path="/tips" element={<Tips />} />

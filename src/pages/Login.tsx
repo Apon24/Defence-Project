@@ -123,8 +123,13 @@ export const Login = () => {
         navigate("/dashboard");
       } else {
         await signUp(email, password, fullName);
-        showNotification("success", t("login.accountCreated"));
-        navigate("/dashboard");
+        showNotification(
+          "success",
+          "Account created! Please check your email for the verification code."
+        );
+        navigate("/verify-email", { state: { email } });
+        setIsLogin(true);
+        resetForm();
       }
     } catch (err: any) {
       let errorMessage = "An error occurred. Please try again.";

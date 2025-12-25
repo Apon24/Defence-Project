@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
-import { sendWelcomeEmail, sendLoginEmail, sendForgotPasswordEmail } from '../services/emailService.js';
+import { sendWelcomeEmail, sendLoginEmail, sendForgotPasswordEmail, sendVerificationEmail } from '../services/emailService.js';
+import crypto from 'crypto';
 
 // @desc    Register user
 // @route   POST /api/auth/signup
@@ -25,26 +26,20 @@ export const signup = async (req, res, next) => {
       fullName
     });
 
-    const token = generateToken(user._id);
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    await user.save();
 
-    // Send welcome email (don't await to not block response)
-    sendWelcomeEmail(email, fullName).catch(err => 
-      console.error('Failed to send welcome email:', err)
+    // Send verification email
+    sendVerificationEmail(email, fullName, verificationToken).catch(err => 
+      console.error('Failed to send verification email:', err)
     );
 
     res.status(201).json({
       success: true,
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          fullName: user.fullName,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          bio: user.bio
-        },
-        token
-      }
+      message: 'Account created! Please check your email to verify your account.',
+      data: null
     });
   } catch (error) {
     next(error);
@@ -65,6 +60,13 @@ export const login = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email to login'
       });
     }
 
@@ -158,3 +160,54 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
+// @desc    Verify email
+// @route   POST /api/auth/verify-email
+// @access  Public
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { email, code } = req.body;
+
+    const user = await User.findOne({
+      email,
+      verificationToken: code,
+      verificationTokenExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification code'
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+    await user.save();
+
+    // Send welcome email now that they are verified
+    sendWelcomeEmail(user.email, user.fullName).catch(err => 
+      console.error('Failed to send welcome email:', err)
+    );
+
+    const authToken = generateToken(user._id);
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          avatarUrl: user.avatarUrl,
+          bio: user.bio
+        },
+        token: authToken
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

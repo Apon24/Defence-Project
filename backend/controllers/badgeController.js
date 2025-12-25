@@ -4,6 +4,8 @@ import QuizAttempt from '../models/QuizAttempt.js';
 import CarbonFootprint from '../models/CarbonFootprint.js';
 import DailyChallenge from '../models/DailyChallenge.js';
 import CommunityPost from '../models/CommunityPost.js';
+import User from '../models/User.js';
+import { sendBadgeEarnedEmail } from '../services/emailService.js';
 
 // @desc    Get all badges
 // @route   GET /api/badges
@@ -105,6 +107,20 @@ export const checkAndAwardBadges = async (req, res, next) => {
 
     if (badgesToAward.length > 0) {
       await UserBadge.insertMany(badgesToAward);
+
+      // Send emails for awarded badges
+      const user = await User.findById(userId);
+      if (user) {
+        // Fetch full badge details for the emails
+        const newBadgeIds = badgesToAward.map(b => b.badgeId);
+        const awardedBadges = badges.filter(b => newBadgeIds.includes(b._id));
+
+        for (const badge of awardedBadges) {
+          sendBadgeEarnedEmail(user.email, user.fullName, badge.name, badge.description).catch(err =>
+            console.error(`Failed to send badge email for ${badge.name}:`, err)
+          );
+        }
+      }
     }
 
     res.json({
