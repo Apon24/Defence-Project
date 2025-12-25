@@ -27,7 +27,9 @@ const authFetch = async (url: string, options: RequestInit = {}) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const error = new Error(data.message || "Something went wrong");
+    (error as any).code = data.code;
+    throw error;
   }
 
   return data;
@@ -70,6 +72,13 @@ export const authApi = {
       localStorage.setItem("token", data.data.token);
     }
     return data;
+  },
+
+  resendVerification: async (email: string) => {
+    return authFetch("/auth/verify-email/resend", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
   },
 
   logout: () => {

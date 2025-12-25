@@ -163,7 +163,6 @@ const emailTemplates = {
         </div>
       </div>
     `
-    `
   }),
 
   quizCompleted: (fullName, score, totalQuestions, badgeName = null) => ({

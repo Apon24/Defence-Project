@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { authApi } from "../lib/api";
 import { useNotification } from "../contexts/NotificationContext";
-import { CheckCircle2, Loader2, Mail } from "lucide-react";
+import { CheckCircle2, Loader2, Mail, RefreshCw } from "lucide-react";
 
 export const VerifyEmail = () => {
   const location = useLocation();
@@ -13,12 +13,24 @@ export const VerifyEmail = () => {
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (location.state?.email) {
       setEmail(location.state.email);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    let interval: any;
+    if (resendCooldown > 0) {
+      interval = setInterval(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +56,24 @@ export const VerifyEmail = () => {
       setStatus("error");
       setMessage(error.message || "Failed to verify email");
       showNotification("error", error.message || "Verification failed");
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!email) {
+      showNotification("error", "Email is missing");
+      return;
+    }
+
+    setResending(true);
+    try {
+      await authApi.resendVerification(email);
+      showNotification("success", "Verification code resent successfully");
+      setResendCooldown(60); // 60 seconds cooldown
+    } catch (error: any) {
+      showNotification("error", error.message || "Failed to resend code");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -118,6 +148,24 @@ export const VerifyEmail = () => {
             >
               {status === "loading" && <Loader2 className="h-5 w-5 animate-spin" />}
               {status === "loading" ? "Verifying..." : "Verify Email"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={resendCooldown > 0 || resending}
+              className="w-full py-3 border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {resending ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              <span>
+                {resendCooldown > 0
+                  ? `Resend available in ${resendCooldown}s`
+                  : "Resend Code"}
+              </span>
             </button>
 
             <div className="text-center">

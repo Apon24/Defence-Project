@@ -142,6 +142,12 @@ export const Login = () => {
         errorMessage = err.message;
       }
 
+      if (err.code === "UNVERIFIED_EMAIL") {
+        showNotification("error", "Please verify your email first");
+        navigate("/verify-email", { state: { email } });
+        return;
+      }
+
       setErrors({ form: errorMessage });
       showNotification("error", errorMessage);
     } finally {

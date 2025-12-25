@@ -66,7 +66,8 @@ export const login = async (req, res, next) => {
     if (!user.isVerified) {
       return res.status(401).json({
         success: false,
-        message: 'Please verify your email to login'
+        message: 'Please verify your email to login',
+        code: 'UNVERIFIED_EMAIL'
       });
     }
 
@@ -206,6 +207,48 @@ export const verifyEmail = async (req, res, next) => {
         },
         token: authToken
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Resend verification email
+// @route   POST /api/auth/verify-email/resend
+// @access  Public
+export const resendVerification = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No user found with this email'
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    await user.save();
+
+    // Send verification email
+    sendVerificationEmail(email, user.fullName, verificationToken).catch(err => 
+      console.error('Failed to send verification email:', err)
+    );
+
+    res.json({
+      success: true,
+      message: 'Verification code resent successfully'
     });
   } catch (error) {
     next(error);
