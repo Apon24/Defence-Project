@@ -1,21 +1,22 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 // Helper to get auth token
 const getAuthToken = (): string | null => {
-  return localStorage.getItem('token');
+  return localStorage.getItem("token");
 };
 
 // Helper to make authenticated requests
 const authFetch = async (url: string, options: RequestInit = {}) => {
   const token = getAuthToken();
-  
+
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...options.headers,
   };
 
   if (token) {
-    (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -26,7 +27,7 @@ const authFetch = async (url: string, options: RequestInit = {}) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    throw new Error(data.message || "Something went wrong");
   }
 
   return data;
@@ -35,38 +36,38 @@ const authFetch = async (url: string, options: RequestInit = {}) => {
 // Auth API
 export const authApi = {
   signup: async (email: string, password: string, fullName: string) => {
-    const data = await authFetch('/auth/signup', {
-      method: 'POST',
+    const data = await authFetch("/auth/signup", {
+      method: "POST",
       body: JSON.stringify({ email, password, fullName }),
     });
     if (data.data?.token) {
-      localStorage.setItem('token', data.data.token);
+      localStorage.setItem("token", data.data.token);
     }
     return data;
   },
 
   login: async (email: string, password: string) => {
-    const data = await authFetch('/auth/login', {
-      method: 'POST',
+    const data = await authFetch("/auth/login", {
+      method: "POST",
       body: JSON.stringify({ email, password }),
     });
     if (data.data?.token) {
-      localStorage.setItem('token', data.data.token);
+      localStorage.setItem("token", data.data.token);
     }
     return data;
   },
 
   getMe: async () => {
-    return authFetch('/auth/me');
+    return authFetch("/auth/me");
   },
 
   logout: () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
   },
 
   forgotPassword: async (email: string) => {
-    return authFetch('/auth/forgot-password', {
-      method: 'POST',
+    return authFetch("/auth/forgot-password", {
+      method: "POST",
       body: JSON.stringify({ email }),
     });
   },
@@ -75,17 +76,21 @@ export const authApi = {
 // Profile API
 export const profileApi = {
   get: async () => {
-    return authFetch('/profile');
+    return authFetch("/profile");
   },
 
   getProfile: async () => {
-    const response = await authFetch('/profile');
+    const response = await authFetch("/profile");
     return response.data || response;
   },
 
-  update: async (data: { fullName?: string; avatarUrl?: string; bio?: string }) => {
-    return authFetch('/profile', {
-      method: 'PUT',
+  update: async (data: {
+    fullName?: string;
+    avatarUrl?: string;
+    bio?: string;
+  }) => {
+    return authFetch("/profile", {
+      method: "PUT",
       body: JSON.stringify(data),
     });
   },
@@ -105,8 +110,8 @@ export const carbonApi = {
     totalCo2Kg: number;
     category: string;
   }) => {
-    return authFetch('/carbon', {
-      method: 'POST',
+    return authFetch("/carbon", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
@@ -119,22 +124,22 @@ export const challengesApi = {
   },
 
   create: async (challengeName: string, challengeDate?: Date) => {
-    return authFetch('/challenges', {
-      method: 'POST',
+    return authFetch("/challenges", {
+      method: "POST",
       body: JSON.stringify({ challengeName, challengeDate }),
     });
   },
 
   update: async (id: string, completed: boolean) => {
     return authFetch(`/challenges/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({ completed }),
     });
   },
 
   delete: async (id: string) => {
     return authFetch(`/challenges/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
@@ -142,25 +147,25 @@ export const challengesApi = {
 // Community API
 export const communityApi = {
   getPosts: async () => {
-    return authFetch('/community/posts');
+    return authFetch("/community/posts");
   },
 
   createPost: async (content: string) => {
-    return authFetch('/community/posts', {
-      method: 'POST',
+    return authFetch("/community/posts", {
+      method: "POST",
       body: JSON.stringify({ content }),
     });
   },
 
   likePost: async (id: string) => {
     return authFetch(`/community/posts/${id}/like`, {
-      method: 'PUT',
+      method: "PUT",
     });
   },
 
   deletePost: async (id: string) => {
     return authFetch(`/community/posts/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 
@@ -168,10 +173,22 @@ export const communityApi = {
     return authFetch(`/community/posts/${postId}/comments`);
   },
 
-  addComment: async (postId: string, content: string) => {
+  addComment: async (postId: string, content: string, parentId?: string) => {
     return authFetch(`/community/posts/${postId}/comments`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
+      method: "POST",
+      body: JSON.stringify({ content, parentId }),
+    });
+  },
+
+  likeComment: async (commentId: string) => {
+    return authFetch(`/community/comments/${commentId}/like`, {
+      method: "PUT",
+    });
+  },
+
+  deleteComment: async (commentId: string) => {
+    return authFetch(`/community/comments/${commentId}`, {
+      method: "DELETE",
     });
   },
 };
@@ -179,7 +196,7 @@ export const communityApi = {
 // Blog API
 export const blogApi = {
   getAll: async () => {
-    return authFetch('/blog');
+    return authFetch("/blog");
   },
 
   getOne: async (id: string) => {
@@ -187,14 +204,14 @@ export const blogApi = {
   },
 
   fetchFromOnline: async () => {
-    return authFetch('/blog/fetch', {
-      method: 'POST',
+    return authFetch("/blog/fetch", {
+      method: "POST",
     });
   },
 
   delete: async (id: string) => {
     return authFetch(`/blog/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
@@ -206,7 +223,7 @@ export const quizApi = {
   },
 
   getAllQuestions: async () => {
-    return authFetch('/quiz/questions/all');
+    return authFetch("/quiz/questions/all");
   },
 
   createQuestion: async (data: {
@@ -217,22 +234,22 @@ export const quizApi = {
     explanation: string;
     answers: { answerText: string; isCorrect: boolean; orderIndex: number }[];
   }) => {
-    return authFetch('/quiz/questions', {
-      method: 'POST',
+    return authFetch("/quiz/questions", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
 
   updateQuestion: async (id: string, data: any) => {
     return authFetch(`/quiz/questions/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
   },
 
   deleteQuestion: async (id: string) => {
     return authFetch(`/quiz/questions/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 
@@ -243,8 +260,8 @@ export const quizApi = {
     timeTaken: number;
     answers: { questionId: string; answerId: string; isCorrect: boolean }[];
   }) => {
-    return authFetch('/quiz/attempts', {
-      method: 'POST',
+    return authFetch("/quiz/attempts", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
@@ -257,16 +274,16 @@ export const quizApi = {
 // Badges API
 export const badgesApi = {
   getAll: async () => {
-    return authFetch('/badges');
+    return authFetch("/badges");
   },
 
   getUserBadges: async () => {
-    return authFetch('/badges/user');
+    return authFetch("/badges/user");
   },
 
   checkAndAward: async () => {
-    return authFetch('/badges/check', {
-      method: 'POST',
+    return authFetch("/badges/check", {
+      method: "POST",
     });
   },
 };
@@ -275,8 +292,8 @@ export const badgesApi = {
 export const ecoLocationsApi = {
   getAll: async (category?: string, city?: string) => {
     const params = new URLSearchParams();
-    if (category) params.append('category', category);
-    if (city) params.append('city', city);
+    if (category) params.append("category", category);
+    if (city) params.append("city", city);
     return authFetch(`/eco-locations?${params.toString()}`);
   },
 
@@ -287,11 +304,15 @@ export const ecoLocationsApi = {
 
 // Eco Events API
 export const ecoEventsApi = {
-  getAll: async (filters?: { eventType?: string; district?: string; division?: string }) => {
+  getAll: async (filters?: {
+    eventType?: string;
+    district?: string;
+    division?: string;
+  }) => {
     const params = new URLSearchParams();
-    if (filters?.eventType) params.append('eventType', filters.eventType);
-    if (filters?.district) params.append('district', filters.district);
-    if (filters?.division) params.append('division', filters.division);
+    if (filters?.eventType) params.append("eventType", filters.eventType);
+    if (filters?.district) params.append("district", filters.district);
+    if (filters?.division) params.append("division", filters.division);
     return authFetch(`/eco-events?${params.toString()}`);
   },
 
@@ -303,7 +324,7 @@ export const ecoEventsApi = {
 // Planting API
 export const plantingApi = {
   getAreas: async () => {
-    return authFetch('/planting/areas');
+    return authFetch("/planting/areas");
   },
 
   getArea: async (id: string) => {
@@ -311,44 +332,50 @@ export const plantingApi = {
   },
 
   getTrees: async (plantingAreaId?: string) => {
-    const params = plantingAreaId ? `?plantingAreaId=${plantingAreaId}` : '';
+    const params = plantingAreaId ? `?plantingAreaId=${plantingAreaId}` : "";
     return authFetch(`/planting/trees${params}`);
   },
 
-  plantTree: async (data: { plantingAreaId: string; treeType: string; notes?: string }) => {
-    return authFetch('/planting/trees', {
-      method: 'POST',
+  plantTree: async (data: {
+    plantingAreaId: string;
+    treeType: string;
+    notes?: string;
+  }) => {
+    return authFetch("/planting/trees", {
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
 
   getUserTrees: async () => {
-    return authFetch('/planting/trees/user');
+    return authFetch("/planting/trees/user");
   },
 };
 
 // Leaderboard API
 export const leaderboardApi = {
   get: async () => {
-    return authFetch('/leaderboard');
+    return authFetch("/leaderboard");
   },
 };
 
 // Admin API
 export const adminApi = {
   getStats: async () => {
-    const response = await authFetch('/admin/stats');
+    const response = await authFetch("/admin/stats");
     return response.data || response;
   },
 
   getUsers: async (page = 1, limit = 20) => {
-    const response = await authFetch(`/admin/users?page=${page}&limit=${limit}`);
+    const response = await authFetch(
+      `/admin/users?page=${page}&limit=${limit}`
+    );
     return response;
   },
 
-  updateUserRole: async (id: string, role: 'user' | 'admin') => {
+  updateUserRole: async (id: string, role: "user" | "admin") => {
     const response = await authFetch(`/admin/users/${id}/role`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({ role }),
     });
     return response;
@@ -370,4 +397,3 @@ export default {
   leaderboard: leaderboardApi,
   admin: adminApi,
 };
-

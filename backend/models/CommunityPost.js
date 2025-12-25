@@ -1,26 +1,31 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const communityPostSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
   },
   content: {
     type: String,
-    required: true
+    required: true,
   },
   likes: {
     type: Number,
-    default: 0
+    default: 0,
   },
+  likedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 communityPostSchema.index({ createdAt: -1 });
 
-export default mongoose.model('CommunityPost', communityPostSchema);
-
+export default mongoose.model("CommunityPost", communityPostSchema);
