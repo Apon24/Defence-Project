@@ -1,7 +1,15 @@
-import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { carbonApi } from '../lib/api';
-import { Calculator as CalcIcon, Zap, Car, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
+import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { carbonApi } from "../lib/api";
+import {
+  Calculator as CalcIcon,
+  Zap,
+  Car,
+  Trash2,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
 interface FormData {
   electricityKwh: string;
@@ -12,11 +20,12 @@ interface FormData {
 
 export const Calculator = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState<FormData>({
-    electricityKwh: '',
-    transportKm: '',
-    transportType: 'car',
-    wasteKg: '',
+    electricityKwh: "",
+    transportKm: "",
+    transportType: "car",
+    wasteKg: "",
   });
   const [result, setResult] = useState<{
     totalCO2: number;
@@ -24,7 +33,9 @@ export const Calculator = () => {
     breakdown: { electricity: number; transport: number; waste: number };
   } | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -47,14 +58,15 @@ export const Calculator = () => {
     };
 
     const electricityCO2 = electricity * 0.82;
-    const transportCO2 = transport * (transportEmissionFactors[formData.transportType] || 0.21);
+    const transportCO2 =
+      transport * (transportEmissionFactors[formData.transportType] || 0.21);
     const wasteCO2 = waste * 0.5;
 
     const totalCO2 = electricityCO2 + transportCO2 + wasteCO2;
 
-    let category = 'Low';
-    if (totalCO2 > 100) category = 'High';
-    else if (totalCO2 > 50) category = 'Medium';
+    let category = "Low";
+    if (totalCO2 > 100) category = "High";
+    else if (totalCO2 > 50) category = "Medium";
 
     setResult({
       totalCO2: parseFloat(totalCO2.toFixed(2)),
@@ -77,21 +89,21 @@ export const Calculator = () => {
           category,
         });
       } catch (error) {
-        console.error('Error saving carbon footprint:', error);
+        console.error("Error saving carbon footprint:", error);
       }
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Low':
-        return 'text-green-600';
-      case 'Medium':
-        return 'text-yellow-600';
-      case 'High':
-        return 'text-red-600';
+      case "Low":
+        return "text-green-600";
+      case "Medium":
+        return "text-yellow-600";
+      case "High":
+        return "text-red-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
@@ -101,10 +113,11 @@ export const Calculator = () => {
         <div className="text-center mb-12">
           <CalcIcon className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            Carbon Footprint Calculator
+            {t('calculator.title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Calculate your daily carbon emissions and understand your environmental impact
+            Calculate your daily carbon emissions and understand your
+            environmental impact
           </p>
         </div>
 
@@ -160,8 +173,7 @@ export const Calculator = () => {
                   name="transportType"
                   value={formData.transportType}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                >
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white">
                   <option value="car">Private Car</option>
                   <option value="motorcycle">Motorcycle</option>
                   <option value="bus">Bus/Public Transport</option>
@@ -192,8 +204,7 @@ export const Calculator = () => {
 
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-              >
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                 Calculate Carbon Footprint
               </button>
             </form>
@@ -209,8 +220,13 @@ export const Calculator = () => {
                 <p className="text-6xl font-bold text-green-600 mb-2">
                   {result.totalCO2}
                 </p>
-                <p className="text-2xl text-gray-600 dark:text-gray-300 mb-4">kg CO₂ per day</p>
-                <div className={`inline-block px-6 py-2 rounded-full ${getCategoryColor(result.category)} bg-opacity-10 font-bold text-lg`}>
+                <p className="text-2xl text-gray-600 dark:text-gray-300 mb-4">
+                  kg CO₂ per day
+                </p>
+                <div
+                  className={`inline-block px-6 py-2 rounded-full ${getCategoryColor(
+                    result.category
+                  )} bg-opacity-10 font-bold text-lg`}>
                   {result.category} Impact
                 </div>
               </div>
@@ -229,7 +245,11 @@ export const Calculator = () => {
                   <div className="bg-yellow-200 dark:bg-yellow-700 h-2 rounded-full">
                     <div
                       className="bg-yellow-500 h-2 rounded-full"
-                      style={{ width: `${(result.breakdown.electricity / result.totalCO2) * 100}%` }}
+                      style={{
+                        width: `${
+                          (result.breakdown.electricity / result.totalCO2) * 100
+                        }%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -247,7 +267,11 @@ export const Calculator = () => {
                   <div className="bg-blue-200 dark:bg-blue-700 h-2 rounded-full">
                     <div
                       className="bg-blue-500 h-2 rounded-full"
-                      style={{ width: `${(result.breakdown.transport / result.totalCO2) * 100}%` }}
+                      style={{
+                        width: `${
+                          (result.breakdown.transport / result.totalCO2) * 100
+                        }%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -265,14 +289,20 @@ export const Calculator = () => {
                   <div className="bg-red-200 dark:bg-red-700 h-2 rounded-full">
                     <div
                       className="bg-red-500 h-2 rounded-full"
-                      style={{ width: `${(result.breakdown.waste / result.totalCO2) * 100}%` }}
+                      style={{
+                        width: `${
+                          (result.breakdown.waste / result.totalCO2) * 100
+                        }%`,
+                      }}
                     />
                   </div>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 p-6 rounded-lg">
-                <h3 className="font-bold text-gray-800 dark:text-white mb-3">Recommendations:</h3>
+                <h3 className="font-bold text-gray-800 dark:text-white mb-3">
+                  Recommendations:
+                </h3>
                 <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                   {result.breakdown.electricity > 8 && (
                     <li className="flex items-start">

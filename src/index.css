@@ -1,14 +1,61 @@
 @import 'leaflet/dist/leaflet.css';
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base font settings */
+body {
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+/* Bangla text styling */
+.font-bangla {
+  font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+}
+
+/* English text styling */
+.font-english {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Bangladesh flag colors accent */
+.bd-gradient {
+  background: linear-gradient(135deg, #006a4e 0%, #f42a41 100%);
+}
+
+.bd-text-gradient {
+  background: linear-gradient(135deg, #006a4e 0%, #f42a41 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Language toggle button styling */
+.language-toggle {
+  background: linear-gradient(135deg, #006a4e 0%, #10b981 100%);
+  transition: all 0.3s ease;
+}
+
+.language-toggle:hover {
+  background: linear-gradient(135deg, #004d38 0%, #059669 100%);
+  transform: scale(1.05);
+}
+
+/* Improved readability for Bangla text */
+[lang="bn"] {
+  font-size: 1.02em;
+  letter-spacing: 0.01em;
+}
 
 @keyframes slide-in {
   from {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -23,6 +70,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -33,9 +81,12 @@
 }
 
 @keyframes bounce-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -46,9 +97,12 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(34, 197, 94, 0.5), 0 0 15px rgba(34, 197, 94, 0.3);
   }
+
   50% {
     box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.5);
   }

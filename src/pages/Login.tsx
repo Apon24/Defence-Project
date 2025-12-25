@@ -1,17 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
-import { Leaf, Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { authApi } from '../lib/api';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  Leaf,
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import { authApi } from "../lib/api";
 
 export const Login = () => {
+  const { t, language } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,10 +34,10 @@ export const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authMode = localStorage.getItem('authMode');
-    if (authMode === 'signup') {
+    const authMode = localStorage.getItem("authMode");
+    if (authMode === "signup") {
       setIsLogin(false);
-      localStorage.removeItem('authMode');
+      localStorage.removeItem("authMode");
     }
   }, []);
 
@@ -34,18 +46,32 @@ export const Login = () => {
     return emailRegex.test(email);
   };
 
-  const validatePassword = (password: string): { valid: boolean; message?: string } => {
+  const validatePassword = (
+    password: string
+  ): { valid: boolean; message?: string } => {
     if (password.length < 8) {
-      return { valid: false, message: 'Password must be at least 8 characters' };
+      return {
+        valid: false,
+        message: "Password must be at least 8 characters",
+      };
     }
     if (!/[A-Z]/.test(password)) {
-      return { valid: false, message: 'Password must contain at least one uppercase letter' };
+      return {
+        valid: false,
+        message: "Password must contain at least one uppercase letter",
+      };
     }
     if (!/[a-z]/.test(password)) {
-      return { valid: false, message: 'Password must contain at least one lowercase letter' };
+      return {
+        valid: false,
+        message: "Password must contain at least one lowercase letter",
+      };
     }
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      return { valid: false, message: 'Password must contain at least one special character' };
+      return {
+        valid: false,
+        message: "Password must contain at least one special character",
+      };
     }
     return { valid: true };
   };
@@ -54,17 +80,17 @@ export const Login = () => {
     const newErrors: Record<string, string> = {};
 
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!isLogin && !fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = "Full name is required";
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (!isLogin) {
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.valid) {
@@ -73,7 +99,7 @@ export const Login = () => {
     }
 
     if (!isLogin && password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -93,26 +119,26 @@ export const Login = () => {
     try {
       if (isLogin) {
         await signIn(email, password);
-        showNotification('success', 'Welcome back!');
-        navigate('/dashboard');
+        showNotification("success", t("login.welcomeBack"));
+        navigate("/dashboard");
       } else {
         await signUp(email, password, fullName);
-        showNotification('success', 'Account created successfully!');
-        navigate('/dashboard');
+        showNotification("success", t("login.accountCreated"));
+        navigate("/dashboard");
       }
     } catch (err: any) {
-      let errorMessage = 'An error occurred. Please try again.';
+      let errorMessage = "An error occurred. Please try again.";
 
-      if (err.message?.includes('Invalid credentials')) {
-        errorMessage = 'Invalid email or password';
-      } else if (err.message?.includes('already exists')) {
-        errorMessage = 'An account with this email already exists';
+      if (err.message?.includes("Invalid credentials")) {
+        errorMessage = "Invalid email or password";
+      } else if (err.message?.includes("already exists")) {
+        errorMessage = "An account with this email already exists";
       } else if (err.message) {
         errorMessage = err.message;
       }
 
       setErrors({ form: errorMessage });
-      showNotification('error', errorMessage);
+      showNotification("error", errorMessage);
     } finally {
       setLoading(false);
     }
@@ -122,12 +148,12 @@ export const Login = () => {
     e.preventDefault();
 
     if (!email.trim()) {
-      setErrors({ email: 'Please enter your email address' });
+      setErrors({ email: "Please enter your email address" });
       return;
     }
 
     if (!validateEmail(email)) {
-      setErrors({ email: 'Please enter a valid email address' });
+      setErrors({ email: "Please enter a valid email address" });
       return;
     }
 
@@ -137,20 +163,20 @@ export const Login = () => {
     try {
       await authApi.forgotPassword(email);
       setPasswordResetSent(true);
-      showNotification('success', 'Password reset link sent to your email');
+      showNotification("success", "Password reset link sent to your email");
     } catch (err: any) {
-      setErrors({ form: 'Failed to send reset link. Please try again.' });
-      showNotification('error', 'Failed to send reset link');
+      setErrors({ form: "Failed to send reset link. Please try again." });
+      showNotification("error", "Failed to send reset link");
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setFullName('');
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setFullName("");
     setErrors({});
     setShowForgotPassword(false);
     setPasswordResetSent(false);
@@ -173,12 +199,12 @@ export const Login = () => {
                 </div>
               </Link>
               <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-                Forgot Password?
+                {t("forgotPassword.title")}
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
                 {passwordResetSent
-                  ? 'Check your email for reset instructions'
-                  : 'Enter your email to receive a password reset link'}
+                  ? t("forgotPassword.sent")
+                  : t("forgotPassword.subtitle")}
               </p>
             </div>
 
@@ -196,8 +222,7 @@ export const Login = () => {
                       resetForm();
                       setIsLogin(true);
                     }}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg"
-                  >
+                    className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg">
                     Back to Login
                   </button>
                 </div>
@@ -207,7 +232,9 @@ export const Login = () => {
                 {errors.form && (
                   <div className="p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-500 rounded-xl flex items-start space-x-3">
                     <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-red-700 dark:text-red-200 text-sm">{errors.form}</p>
+                    <p className="text-red-700 dark:text-red-200 text-sm">
+                      {errors.form}
+                    </p>
                   </div>
                 )}
 
@@ -222,12 +249,12 @@ export const Login = () => {
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
-                        setErrors({ ...errors, email: '' });
+                        setErrors({ ...errors, email: "" });
                       }}
                       className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none transition-all ${
                         errors.email
-                          ? 'border-red-500 focus:border-red-600'
-                          : 'border-gray-300 dark:border-gray-600 focus:border-emerald-500'
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
                       } dark:bg-gray-700 dark:text-white`}
                       placeholder="your@email.com"
                     />
@@ -243,9 +270,8 @@ export const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {loading ? 'Sending...' : 'Send Reset Link'}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                  {loading ? "Sending..." : "Send Reset Link"}
                 </button>
 
                 <button
@@ -254,8 +280,7 @@ export const Login = () => {
                     resetForm();
                     setIsLogin(true);
                   }}
-                  className="w-full px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                >
+                  className="w-full px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
                   Back to Login
                 </button>
               </form>
@@ -277,17 +302,31 @@ export const Login = () => {
               </div>
             </Link>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">
-              {isLogin ? 'Welcome Back' : 'Join Eco Track'}
+              {isLogin
+                ? language === "bn"
+                  ? "স্বাগতম"
+                  : "Welcome Back"
+                : language === "bn"
+                ? "ইকো ট্র্যাকে যোগ দিন"
+                : "Join Eco Track"}
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              {isLogin ? 'Continue your eco journey' : 'Start your sustainable journey today'}
+              {isLogin
+                ? language === "bn"
+                  ? "আপনার ইকো যাত্রা চালিয়ে যান"
+                  : "Continue your eco journey"
+                : language === "bn"
+                ? "আজই আপনার টেকসই যাত্রা শুরু করুন"
+                : "Start your sustainable journey today"}
             </p>
           </div>
 
           {errors.form && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-500 rounded-xl flex items-start space-x-3 animate-fade-in">
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-700 dark:text-red-200 text-sm">{errors.form}</p>
+              <p className="text-red-700 dark:text-red-200 text-sm">
+                {errors.form}
+              </p>
             </div>
           )}
 
@@ -295,7 +334,7 @@ export const Login = () => {
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name
+                  {t("login.fullName")}
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -304,14 +343,14 @@ export const Login = () => {
                     value={fullName}
                     onChange={(e) => {
                       setFullName(e.target.value);
-                      setErrors({ ...errors, fullName: '' });
+                      setErrors({ ...errors, fullName: "" });
                     }}
                     className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none transition-all ${
                       errors.fullName
-                        ? 'border-red-500 focus:border-red-600'
-                        : 'border-gray-300 dark:border-gray-600 focus:border-emerald-500'
+                        ? "border-red-500 focus:border-red-600"
+                        : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
                     } dark:bg-gray-700 dark:text-white`}
-                    placeholder="Your full name"
+                    placeholder={t("login.fullName.placeholder")}
                   />
                 </div>
                 {errors.fullName && (
@@ -325,7 +364,7 @@ export const Login = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
+                {t("login.email")}
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -334,14 +373,14 @@ export const Login = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    setErrors({ ...errors, email: '' });
+                    setErrors({ ...errors, email: "" });
                   }}
                   className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none transition-all ${
                     errors.email
-                      ? 'border-red-500 focus:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600 focus:border-emerald-500'
+                      ? "border-red-500 focus:border-red-600"
+                      : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
                   } dark:bg-gray-700 dark:text-white`}
-                  placeholder="your@email.com"
+                  placeholder={t("login.email.placeholder")}
                 />
               </div>
               {errors.email && (
@@ -354,30 +393,33 @@ export const Login = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                {t("login.password")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    setErrors({ ...errors, password: '' });
+                    setErrors({ ...errors, password: "" });
                   }}
                   className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none transition-all ${
                     errors.password
-                      ? 'border-red-500 focus:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600 focus:border-emerald-500'
+                      ? "border-red-500 focus:border-red-600"
+                      : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
                   } dark:bg-gray-700 dark:text-white`}
-                  placeholder="Enter your password"
+                  placeholder={t("login.password.placeholder")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               {errors.password && (
@@ -388,30 +430,80 @@ export const Login = () => {
               )}
               {!isLogin && (
                 <div className="mt-2 space-y-1">
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Password must contain:</p>
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                    {language === "bn"
+                      ? "পাসওয়ার্ডে থাকতে হবে:"
+                      : "Password must contain:"}
+                  </p>
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2 text-xs">
-                      <div className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={password.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
-                        At least 8 characters
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          password.length >= 8 ? "bg-green-500" : "bg-gray-300"
+                        }`}></div>
+                      <span
+                        className={
+                          password.length >= 8
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-gray-500 dark:text-gray-400"
+                        }>
+                        {language === "bn"
+                          ? "কমপক্ষে ৮টি অক্ষর"
+                          : "At least 8 characters"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
-                      <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={/[A-Z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
-                        One uppercase letter (A-Z)
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          /[A-Z]/.test(password)
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}></div>
+                      <span
+                        className={
+                          /[A-Z]/.test(password)
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-gray-500 dark:text-gray-400"
+                        }>
+                        {language === "bn"
+                          ? "একটি বড় হাতের অক্ষর (A-Z)"
+                          : "One uppercase letter (A-Z)"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
-                      <div className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={/[a-z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
-                        One lowercase letter (a-z)
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          /[a-z]/.test(password)
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}></div>
+                      <span
+                        className={
+                          /[a-z]/.test(password)
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-gray-500 dark:text-gray-400"
+                        }>
+                        {language === "bn"
+                          ? "একটি ছোট হাতের অক্ষর (a-z)"
+                          : "One lowercase letter (a-z)"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 text-xs">
-                      <div className={`w-1.5 h-1.5 rounded-full ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <span className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
-                        One special character (!@#$%^&*)
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}></div>
+                      <span
+                        className={
+                          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-gray-500 dark:text-gray-400"
+                        }>
+                        {language === "bn"
+                          ? "একটি বিশেষ অক্ষর (!@#$%^&*)"
+                          : "One special character (!@#$%^&*)"}
                       </span>
                     </div>
                   </div>
@@ -422,30 +514,37 @@ export const Login = () => {
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password
+                  {t("login.confirmPassword")}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
-                      setErrors({ ...errors, confirmPassword: '' });
+                      setErrors({ ...errors, confirmPassword: "" });
                     }}
                     className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none transition-all ${
                       errors.confirmPassword
-                        ? 'border-red-500 focus:border-red-600'
-                        : 'border-gray-300 dark:border-gray-600 focus:border-emerald-500'
+                        ? "border-red-500 focus:border-red-600"
+                        : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
                     } dark:bg-gray-700 dark:text-white`}
-                    placeholder="Confirm your password"
+                    placeholder={
+                      language === "bn"
+                        ? "পাসওয়ার্ড নিশ্চিত করুন"
+                        : "Confirm your password"
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
@@ -462,9 +561,8 @@ export const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(true)}
-                  className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium transition-colors"
-                >
-                  Forgot password?
+                  className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium transition-colors">
+                  {t("login.forgotPassword")}
                 </button>
               </div>
             )}
@@ -472,28 +570,40 @@ export const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              <span>{loading ? (isLogin ? 'Signing in...' : 'Creating account...') : (isLogin ? 'Sign In' : 'Create Account')}</span>
+              className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+              <span>
+                {loading
+                  ? isLogin
+                    ? language === "bn"
+                      ? "প্রবেশ করা হচ্ছে..."
+                      : "Signing in..."
+                    : language === "bn"
+                    ? "একাউন্ট তৈরি হচ্ছে..."
+                    : "Creating account..."
+                  : isLogin
+                  ? t("login.button")
+                  : t("login.signup.button")}
+              </span>
               {!loading && <ArrowRight className="h-5 w-5" />}
             </button>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-gray-600 dark:text-gray-400 mb-3">
-              {isLogin ? "Don't have an account?" : 'Already have an account?'}
+              {isLogin ? t("login.noAccount") : t("login.hasAccount")}
             </p>
             <button
               onClick={toggleMode}
-              className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold text-lg transition-colors"
-            >
-              {isLogin ? 'Create Account' : 'Sign In'}
+              className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold text-lg transition-colors">
+              {isLogin ? t("login.createAccount") : t("login.button")}
             </button>
           </div>
         </div>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-          By continuing, you agree to our Terms of Service and Privacy Policy
+          {language === "bn"
+            ? "চালিয়ে যাওয়ার মাধ্যমে, আপনি আমাদের সেবার শর্তাবলী এবং গোপনীয়তা নীতিতে সম্মত হচ্ছেন"
+            : "By continuing, you agree to our Terms of Service and Privacy Policy"}
         </p>
       </div>
     </div>

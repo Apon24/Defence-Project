@@ -1,16 +1,31 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Leaf, Moon, Sun, LogOut, User, Menu, X, LogIn, UserPlus, Shield, ChevronDown } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { profileApi } from '../lib/api';
-import { NavDropdown } from './NavDropdown';
-import { UserMenu } from './UserMenu';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useLocation } from "react-router-dom";
+import {
+  Leaf,
+  Moon,
+  Sun,
+  LogOut,
+  User,
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  Shield,
+  ChevronDown,
+  Globe,
+} from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useState, useEffect } from "react";
+import { profileApi } from "../lib/api";
+import { NavDropdown } from "./NavDropdown";
+import { UserMenu } from "./UserMenu";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Navbar = () => {
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,41 +33,41 @@ export const Navbar = () => {
 
   const navCategories = [
     {
-      label: 'Home',
-      type: 'link',
-      path: '/'
+      label: t("nav.home"),
+      type: "link",
+      path: "/",
     },
     {
-      label: 'Learn',
-      type: 'dropdown',
+      label: t("nav.learn"),
+      type: "dropdown",
       items: [
-        { name: 'Tips', path: '/tips' },
-        { name: 'Blog', path: '/blog' },
-        { name: 'Quiz', path: '/quiz' },
-      ]
+        { name: t("nav.tips"), path: "/tips" },
+        { name: t("nav.blog"), path: "/blog" },
+        { name: t("nav.quiz"), path: "/quiz" },
+      ],
     },
     {
-      label: 'Tools',
-      type: 'dropdown',
+      label: t("nav.tools"),
+      type: "dropdown",
       items: [
-        { name: 'Calculator', path: '/calculator' },
-        { name: 'Map', path: '/map' },
-      ]
+        { name: t("nav.calculator"), path: "/calculator" },
+        { name: t("nav.map"), path: "/map" },
+      ],
     },
     {
-      label: 'Community',
-      type: 'dropdown',
+      label: t("nav.community"),
+      type: "dropdown",
       items: [
-        { name: 'Community', path: '/community' },
-        { name: 'Leaderboard', path: '/leaderboard' },
-        { name: 'Challenges', path: '/challenges' },
-      ]
+        { name: t("nav.community"), path: "/community" },
+        { name: t("nav.leaderboard"), path: "/leaderboard" },
+        { name: t("nav.challenges"), path: "/challenges" },
+      ],
     },
     {
-      label: 'Dashboard',
-      type: 'link',
-      path: '/dashboard'
-    }
+      label: t("nav.dashboard"),
+      type: "link",
+      path: "/dashboard",
+    },
   ];
 
   useEffect(() => {
@@ -64,9 +79,9 @@ export const Navbar = () => {
 
       try {
         const profile = await profileApi.getProfile();
-        setIsAdmin(profile?.role === 'admin');
+        setIsAdmin(profile?.role === "admin");
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error("Error checking admin status:", error);
         setIsAdmin(false);
       }
     };
@@ -79,22 +94,22 @@ export const Navbar = () => {
   const linkClass = (path: string) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
       isActive(path)
-        ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
-        : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400'
+        ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+        : "text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400"
     }`;
 
   const handleScrollTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
   const mobileLinkClass = (path: string) =>
     `block px-3 py-2 rounded-md text-base font-medium transition-colors ${
       isActive(path)
-        ? 'bg-green-600 text-white'
-        : 'text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900'
+        ? "bg-green-600 text-white"
+        : "text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900"
     }`;
 
   const toggleCategory = (label: string) => {
@@ -109,22 +124,22 @@ export const Navbar = () => {
             <Link
               to="/"
               className="flex items-center space-x-2 transition-transform duration-200 hover:scale-[1.01]"
-              onClick={handleScrollTop}
-            >
+              onClick={handleScrollTop}>
               <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-green-600">Eco Track Bangladesh</span>
+              <span className="text-xl font-bold text-green-600">
+                {t("app.name")}
+              </span>
             </Link>
           </div>
 
           <div className="hidden lg:flex items-center space-x-2">
-            {navCategories.map((category) => (
-              category.type === 'link' ? (
+            {navCategories.map((category) =>
+              category.type === "link" ? (
                 <Link
                   key={category.path}
                   to={category.path!}
                   className={linkClass(category.path!)}
-                  onClick={handleScrollTop}
-                >
+                  onClick={handleScrollTop}>
                   {category.label}
                 </Link>
               ) : (
@@ -135,50 +150,67 @@ export const Navbar = () => {
                   handleScrollTop={handleScrollTop}
                 />
               )
-            ))}
+            )}
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Language Toggle Button */}
+            <button
+              onClick={toggleLanguage}
+              className="language-toggle flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-white text-sm font-medium shadow-md"
+              title={
+                language === "bn"
+                  ? "Switch to English"
+                  : "বাংলায় পরিবর্তন করুন"
+              }>
+              <Globe className="h-4 w-4" />
+              <span>{t("language.toggle")}</span>
+            </button>
+
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+              {isDark ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
             </button>
 
             {user ? (
               <div className="hidden lg:flex items-center space-x-2">
-                 <UserMenu isAdmin={isAdmin} handleScrollTop={handleScrollTop} />
+                <UserMenu isAdmin={isAdmin} handleScrollTop={handleScrollTop} />
               </div>
             ) : (
               <div className="hidden lg:flex items-center space-x-2">
                 <Link
                   to="/login"
                   className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-all hover:shadow-lg"
-                  onClick={handleScrollTop}
-                >
+                  onClick={handleScrollTop}>
                   <LogIn className="h-4 w-4" />
-                  <span>Login</span>
+                  <span>{t("nav.login")}</span>
                 </Link>
                 <Link
                   to="/login"
                   className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 transition-all"
                   onClick={() => {
-                    localStorage.setItem('authMode', 'signup');
+                    localStorage.setItem("authMode", "signup");
                     handleScrollTop();
-                  }}
-                >
+                  }}>
                   <UserPlus className="h-4 w-4" />
-                  <span>Sign Up</span>
+                  <span>{t("nav.signup")}</span>
                 </Link>
               </div>
             )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -188,13 +220,12 @@ export const Navbar = () => {
         {mobileMenuOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden overflow-hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
-          >
+            className="lg:hidden overflow-hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navCategories.map((category) => (
-                category.type === 'link' ? (
+              {navCategories.map((category) =>
+                category.type === "link" ? (
                   <Link
                     key={category.path}
                     to={category.path!}
@@ -202,20 +233,20 @@ export const Navbar = () => {
                     onClick={() => {
                       handleScrollTop();
                       setMobileMenuOpen(false);
-                    }}
-                  >
+                    }}>
                     {category.label}
                   </Link>
                 ) : (
                   <div key={category.label} className="space-y-1">
                     <button
                       onClick={() => toggleCategory(category.label)}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <span>{category.label}</span>
                       <ChevronDown
                         className={`h-4 w-4 transition-transform duration-200 ${
-                          expandedCategory === category.label ? 'rotate-180' : ''
+                          expandedCategory === category.label
+                            ? "rotate-180"
+                            : ""
                         }`}
                       />
                     </button>
@@ -223,10 +254,9 @@ export const Navbar = () => {
                       {expandedCategory === category.label && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
+                          animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="pl-4 space-y-1 overflow-hidden"
-                        >
+                          className="pl-4 space-y-1 overflow-hidden">
                           {category.items?.map((item) => (
                             <Link
                               key={item.path}
@@ -235,8 +265,7 @@ export const Navbar = () => {
                               onClick={() => {
                                 handleScrollTop();
                                 setMobileMenuOpen(false);
-                              }}
-                            >
+                              }}>
                               {item.name}
                             </Link>
                           ))}
@@ -245,7 +274,7 @@ export const Navbar = () => {
                     </AnimatePresence>
                   </div>
                 )
-              ))}
+              )}
 
               <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                 {user ? (
@@ -257,10 +286,9 @@ export const Navbar = () => {
                         onClick={() => {
                           handleScrollTop();
                           setMobileMenuOpen(false);
-                        }}
-                      >
+                        }}>
                         <Shield className="h-5 w-5" />
-                        <span>Admin Dashboard</span>
+                        <span>{t("nav.admin")}</span>
                       </Link>
                     )}
                     <Link
@@ -269,10 +297,9 @@ export const Navbar = () => {
                       onClick={() => {
                         handleScrollTop();
                         setMobileMenuOpen(false);
-                      }}
-                    >
+                      }}>
                       <User className="h-5 w-5" />
-                      <span>Profile</span>
+                      <span>{t("nav.profile")}</span>
                     </Link>
                     <button
                       onClick={() => {
@@ -280,10 +307,9 @@ export const Navbar = () => {
                         handleScrollTop();
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700"
-                    >
+                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700">
                       <LogOut className="h-5 w-5" />
-                      <span>Logout</span>
+                      <span>{t("nav.logout")}</span>
                     </button>
                   </>
                 ) : (
@@ -294,22 +320,20 @@ export const Navbar = () => {
                       onClick={() => {
                         handleScrollTop();
                         setMobileMenuOpen(false);
-                      }}
-                    >
+                      }}>
                       <LogIn className="h-5 w-5" />
-                      <span>Login</span>
+                      <span>{t("nav.login")}</span>
                     </Link>
                     <Link
                       to="/login"
                       className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-md text-base font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900"
                       onClick={() => {
-                        localStorage.setItem('authMode', 'signup');
+                        localStorage.setItem("authMode", "signup");
                         handleScrollTop();
                         setMobileMenuOpen(false);
-                      }}
-                    >
+                      }}>
                       <UserPlus className="h-5 w-5" />
-                      <span>Sign Up</span>
+                      <span>{t("nav.signup")}</span>
                     </Link>
                   </>
                 )}
