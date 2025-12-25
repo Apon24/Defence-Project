@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { quizApi, carbonApi, challengesApi } from '../lib/api';
 import { useNotification } from '../contexts/NotificationContext';
@@ -28,6 +29,7 @@ interface DailyChallenge {
 
 export const Dashboard = () => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const [quizScores, setQuizScores] = useState<QuizScore[]>([]);
@@ -95,7 +97,9 @@ export const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">Loading dashboard...</div>
+        <div className="text-xl text-gray-600 dark:text-gray-300">
+          {language === 'bn' ? 'ড্যাশবোর্ড লোড হচ্ছে...' : 'Loading dashboard...'}
+        </div>
       </div>
     );
   }
@@ -139,8 +143,8 @@ export const Dashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-12 flex items-center justify-between animate-fade-in-slow">
           <div>
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">Your Eco Dashboard</h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">Track your sustainability journey</p>
+            <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-2">{t('dashboard.title')}</h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300">{t('dashboard.subtitle')}</p>
           </div>
           {carbonFootprints.length > 0 && (
             <button
@@ -148,7 +152,7 @@ export const Dashboard = () => {
               className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Download className="h-5 w-5" />
-              <span>Export Data</span>
+              <span>{language === 'bn' ? 'ডাটা এক্সপোর্ট করুন' : 'Export Data'}</span>
             </button>
           )}
         </div>
@@ -159,7 +163,9 @@ export const Dashboard = () => {
               <Award className="h-8 w-8 text-yellow-500" />
               <span className="text-3xl font-bold text-gray-800 dark:text-white">{averageQuizScore}%</span>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 font-semibold">Avg Quiz Score</p>
+            <p className="text-gray-600 dark:text-gray-300 font-semibold">
+              {language === 'bn' ? 'গড় কুইজ স্কোর' : 'Avg Quiz Score'}
+            </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -167,7 +173,9 @@ export const Dashboard = () => {
               <Leaf className="h-8 w-8 text-green-500" />
               <span className="text-3xl font-bold text-gray-800 dark:text-white">{averageCarbonFootprint}</span>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 font-semibold">Avg CO₂ (kg/day)</p>
+            <p className="text-gray-600 dark:text-gray-300 font-semibold">
+              {language === 'bn' ? 'গড় CO₂ (কেজি/দিন)' : 'Avg CO₂ (kg/day)'}
+            </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -175,7 +183,9 @@ export const Dashboard = () => {
               <Target className="h-8 w-8 text-blue-500" />
               <span className="text-3xl font-bold text-gray-800 dark:text-white">{challengeCompletionRate}%</span>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 font-semibold">Challenge Rate</p>
+            <p className="text-gray-600 dark:text-gray-300 font-semibold">
+              {language === 'bn' ? 'চ্যালেঞ্জ সম্পন্ন' : 'Challenge Rate'}
+            </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -183,13 +193,17 @@ export const Dashboard = () => {
               <TrendingUp className="h-8 w-8 text-red-500" />
               <span className="text-3xl font-bold text-gray-800 dark:text-white">{quizScores.length}</span>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 font-semibold">Quizzes Taken</p>
+            <p className="text-gray-600 dark:text-gray-300 font-semibold">
+              {language === 'bn' ? 'মোট কুইজ' : 'Quizzes Taken'}
+            </p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Carbon Footprint Trend</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+              {language === 'bn' ? 'কার্বন ফুটপ্রিন্ট প্রবণতা' : 'Carbon Footprint Trend'}
+            </h2>
             {carbonTrendData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={carbonTrendData}>
@@ -203,13 +217,17 @@ export const Dashboard = () => {
               </ResponsiveContainer>
             ) : (
               <div className="h-[300px] flex items-center justify-center text-gray-500">
-                No carbon footprint data yet. Calculate your footprint to see trends!
+                {language === 'bn' 
+                  ? 'এখনও কার্বন ফুটপ্রিন্ট ডাটা নেই। প্রবণতা দেখতে আপনার ফুটপ্রিন্ট গণনা করুন!' 
+                  : 'No carbon footprint data yet. Calculate your footprint to see trends!'}
               </div>
             )}
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Quiz Performance</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+              {language === 'bn' ? 'কুইজ পারফরম্যান্স' : 'Quiz Performance'}
+            </h2>
             {quizTrendData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={quizTrendData}>
@@ -218,12 +236,14 @@ export const Dashboard = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="score" fill="#3b82f6" name="Score %" />
+                  <Bar dataKey="score" fill="#3b82f6" name={language === 'bn' ? 'স্কোর %' : 'Score %'} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-[300px] flex items-center justify-center text-gray-500">
-                No quiz data yet. Take a quiz to see your performance!
+                {language === 'bn' 
+                  ? 'এখনও কুইজ ডাটা নেই। আপনার পারফরম্যান্স দেখতে একটি কুইজ নিন!' 
+                  : 'No quiz data yet. Take a quiz to see your performance!'}
               </div>
             )}
           </div>
@@ -231,7 +251,9 @@ export const Dashboard = () => {
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Carbon Impact Categories</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+              {language === 'bn' ? 'কার্বন প্রভাব বিভাগ' : 'Carbon Impact Categories'}
+            </h2>
             {carbonCategoryData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -254,26 +276,34 @@ export const Dashboard = () => {
               </ResponsiveContainer>
             ) : (
               <div className="h-[300px] flex items-center justify-center text-gray-500">
-                No data available
+                {language === 'bn' ? 'কোন ডাটা নেই' : 'No data available'}
               </div>
             )}
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Your Impact</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+              {language === 'bn' ? 'আপনার প্রভাব' : 'Your Impact'}
+            </h2>
             <div className="space-y-6">
               <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Total Quizzes Completed</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  {language === 'bn' ? 'মোট সম্পন্ন কুইজ' : 'Total Quizzes Completed'}
+                </p>
                 <p className="text-3xl font-bold text-green-600">{quizScores.length}</p>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Carbon Calculations</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  {language === 'bn' ? 'কার্বন গণনা' : 'Carbon Calculations'}
+                </p>
                 <p className="text-3xl font-bold text-blue-600">{carbonFootprints.length}</p>
               </div>
 
               <div className="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Challenges Completed</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  {language === 'bn' ? 'সম্পন্ন চ্যালেঞ্জ' : 'Challenges Completed'}
+                </p>
                 <p className="text-3xl font-bold text-yellow-600">
                   {challenges.filter(c => c.completed).length}
                 </p>
@@ -284,22 +314,26 @@ export const Dashboard = () => {
 
         {quizScores.length === 0 && carbonFootprints.length === 0 && (
           <div className="mt-8 bg-gradient-to-r from-green-600 to-red-600 rounded-2xl p-8 text-center text-white">
-            <h3 className="text-2xl font-bold mb-4">Start Your Eco Journey!</h3>
+            <h3 className="text-2xl font-bold mb-4">
+              {language === 'bn' ? 'আপনার ইকো যাত্রা শুরু করুন!' : 'Start Your Eco Journey!'}
+            </h3>
             <p className="text-green-50 mb-6">
-              Take quizzes, calculate your carbon footprint, and complete daily challenges to see your progress here.
+              {language === 'bn' 
+                ? 'কুইজ নিন, আপনার কার্বন ফুটপ্রিন্ট গণনা করুন, এবং দৈনিক চ্যালেঞ্জ সম্পন্ন করুন আপনার অগ্রগতি দেখতে।' 
+                : 'Take quizzes, calculate your carbon footprint, and complete daily challenges to see your progress here.'}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => navigate('/quiz')}
                 className="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors"
               >
-                Take a Quiz
+                {language === 'bn' ? 'কুইজ নিন' : 'Take a Quiz'}
               </button>
               <button
                 onClick={() => navigate('/calculator')}
                 className="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors"
               >
-                Calculate Footprint
+                {language === 'bn' ? 'ফুটপ্রিন্ট গণনা করুন' : 'Calculate Footprint'}
               </button>
             </div>
           </div>

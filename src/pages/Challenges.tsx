@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { challengesApi } from '../lib/api';
 import { Trophy, CheckCircle, Circle, Plus, Trash2 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const defaultChallenges = [
 
 export const Challenges = () => {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [newChallenge, setNewChallenge] = useState('');
   const [loading, setLoading] = useState(true);
@@ -166,7 +168,9 @@ export const Challenges = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">Loading challenges...</div>
+        <div className="text-xl text-gray-600 dark:text-gray-300">
+          {language === 'bn' ? 'চ্যালেঞ্জ লোড হচ্ছে...' : 'Loading challenges...'}
+        </div>
       </div>
     );
   }
@@ -177,10 +181,10 @@ export const Challenges = () => {
         <div className="text-center mb-12">
           <Trophy className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            Daily Eco Challenges
+            {t('challenges.title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Complete daily tasks to build sustainable habits
+            {t('challenges.subtitle')}
           </p>
         </div>
 
@@ -188,7 +192,7 @@ export const Challenges = () => {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-semibold text-gray-800 dark:text-white">
-                Today's Progress
+                {language === 'bn' ? 'আজকের অগ্রগতি' : "Today's Progress"}
               </span>
               <span className="text-2xl font-bold text-green-600">
                 {completedCount} / {challenges.length}
@@ -205,7 +209,9 @@ export const Challenges = () => {
           {progress === 100 && challenges.length > 0 && (
             <div className="bg-gradient-to-r from-green-100 to-yellow-100 dark:from-green-900 dark:to-yellow-900 p-4 rounded-lg mb-6 text-center">
               <p className="text-lg font-bold text-green-800 dark:text-green-200">
-                Congratulations! You completed all challenges today!
+                {language === 'bn' 
+                  ? 'অভিনন্দন! আপনি আজ সব চ্যালেঞ্জ সম্পন্ন করেছেন!' 
+                  : 'Congratulations! You completed all challenges today!'}
               </p>
             </div>
           )}
@@ -258,7 +264,7 @@ export const Challenges = () => {
               value={newChallenge}
               onChange={(e) => setNewChallenge(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addChallenge()}
-              placeholder="Add a new challenge..."
+              placeholder={language === 'bn' ? 'নতুন চ্যালেঞ্জ যোগ করুন...' : 'Add a new challenge...'}
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
             />
             <button
@@ -266,17 +272,19 @@ export const Challenges = () => {
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
               <Plus className="h-5 w-5" />
-              <span>Add</span>
+              <span>{language === 'bn' ? 'যোগ করুন' : 'Add'}</span>
             </button>
           </div>
         </div>
 
         <div className="bg-gradient-to-r from-green-600 to-red-600 rounded-2xl p-8 text-white">
-          <h3 className="text-2xl font-bold mb-4">Build Lasting Habits</h3>
+          <h3 className="text-2xl font-bold mb-4">
+            {language === 'bn' ? 'স্থায়ী অভ্যাস গড়ে তুলুন' : 'Build Lasting Habits'}
+          </h3>
           <p className="text-green-50">
-            Consistency is key to creating a sustainable lifestyle. By completing these daily challenges,
-            you are making a real difference for Bangladesh's environment. Each small action adds up to
-            significant positive change over time.
+            {language === 'bn' 
+              ? 'টেকসই জীবনযাত্রা তৈরিতে ধারাবাহিকতা মূল চাবিকাঠি। এই দৈনিক চ্যালেঞ্জগুলি সম্পন্ন করে, আপনি বাংলাদেশের পরিবেশের জন্য সত্যিকারের পার্থক্য তৈরি করছেন। প্রতিটি ছোট পদক্ষেপ সময়ের সাথে উল্লেখযোগ্য ইতিবাচক পরিবর্তন যোগ করে।'
+              : "Consistency is key to creating a sustainable lifestyle. By completing these daily challenges, you are making a real difference for Bangladesh's environment. Each small action adds up to significant positive change over time."}
           </p>
         </div>
       </div>

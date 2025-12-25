@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
+import { sendWelcomeEmail, sendLoginEmail, sendForgotPasswordEmail } from '../services/emailService.js';
 
 // @desc    Register user
 // @route   POST /api/auth/signup
@@ -25,6 +26,11 @@ export const signup = async (req, res, next) => {
     });
 
     const token = generateToken(user._id);
+
+    // Send welcome email (don't await to not block response)
+    sendWelcomeEmail(email, fullName).catch(err => 
+      console.error('Failed to send welcome email:', err)
+    );
 
     res.status(201).json({
       success: true,
@@ -73,6 +79,12 @@ export const login = async (req, res, next) => {
     }
 
     const token = generateToken(user._id);
+
+    // Send login notification email (don't await to not block response)
+    const userAgent = req.headers['user-agent'] || 'Unknown device';
+    sendLoginEmail(user.email, user.fullName, userAgent).catch(err => 
+      console.error('Failed to send login email:', err)
+    );
 
     res.json({
       success: true,
@@ -132,7 +144,11 @@ export const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // In a real app, you would send an email here
+    // Send forgot password email
+    sendForgotPasswordEmail(email, user.fullName, 'A password reset has been requested for your account. If you did not make this request, please ignore this email.').catch(err => 
+      console.error('Failed to send forgot password email:', err)
+    );
+
     res.json({
       success: true,
       message: 'Password reset link sent to email'

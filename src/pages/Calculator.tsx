@@ -113,25 +113,24 @@ export const Calculator = () => {
         <div className="text-center mb-12">
           <CalcIcon className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            {t('calculator.title')}
+            {t("calculator.title")}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Calculate your daily carbon emissions and understand your
-            environmental impact
+            {t('calculator.subtitle')}
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-              Enter Your Daily Activities
+              {language === 'bn' ? 'আপনার দৈনিক কার্যক্রম লিখুন' : 'Enter Your Daily Activities'}
             </h2>
 
             <form onSubmit={calculateCarbonFootprint} className="space-y-6">
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Zap className="h-5 w-5 mr-2 text-yellow-500" />
-                  Electricity Usage (kWh per day)
+                  {t('calculator.electricity')}
                 </label>
                 <input
                   type="number"
@@ -140,18 +139,18 @@ export const Calculator = () => {
                   onChange={handleChange}
                   step="0.1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="e.g., 10"
+                  placeholder={language === 'bn' ? 'যেমন: ১০' : 'e.g., 10'}
                   required
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Average household in Bangladesh uses 8-12 kWh/day
+                  {language === 'bn' ? 'বাংলাদেশে গড় পরিবার দৈনিক ৮-১২ kWh ব্যবহার করে' : 'Average household in Bangladesh uses 8-12 kWh/day'}
                 </p>
               </div>
 
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Car className="h-5 w-5 mr-2 text-blue-500" />
-                  Daily Transportation (km)
+                  {t('calculator.transport')}
                 </label>
                 <input
                   type="number"
@@ -160,32 +159,32 @@ export const Calculator = () => {
                   onChange={handleChange}
                   step="0.1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="e.g., 20"
+                  placeholder={language === 'bn' ? 'যেমন: ২০' : 'e.g., 20'}
                   required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Transportation Type
+                  {t('calculator.transportType')}
                 </label>
                 <select
                   name="transportType"
                   value={formData.transportType}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white">
-                  <option value="car">Private Car</option>
-                  <option value="motorcycle">Motorcycle</option>
-                  <option value="bus">Bus/Public Transport</option>
-                  <option value="rickshaw">Rickshaw (Electric/Manual)</option>
-                  <option value="bicycle">Bicycle/Walking</option>
+                  <option value="car">{language === 'bn' ? 'ব্যক্তিগত গাড়ি' : 'Private Car'}</option>
+                  <option value="motorcycle">{language === 'bn' ? 'মোটরসাইকেল' : 'Motorcycle'}</option>
+                  <option value="bus">{language === 'bn' ? 'বাস/পাবলিক ট্রান্সপোর্ট' : 'Bus/Public Transport'}</option>
+                  <option value="rickshaw">{language === 'bn' ? 'রিকশা (ইলেকট্রিক/ম্যানুয়াল)' : 'Rickshaw (Electric/Manual)'}</option>
+                  <option value="bicycle">{language === 'bn' ? 'সাইকেল/হাঁটা' : 'Bicycle/Walking'}</option>
                 </select>
               </div>
 
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Trash2 className="h-5 w-5 mr-2 text-red-500" />
-                  Waste Generated (kg per day)
+                  {t('calculator.waste')}
                 </label>
                 <input
                   type="number"
@@ -194,18 +193,18 @@ export const Calculator = () => {
                   onChange={handleChange}
                   step="0.1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="e.g., 2"
+                  placeholder={language === 'bn' ? 'যেমন: ২' : 'e.g., 2'}
                   required
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Average person generates 1-3 kg waste per day
+                  {language === 'bn' ? 'গড় মানুষ দৈনিক ১-৩ কেজি বর্জ্য তৈরি করে' : 'Average person generates 1-3 kg waste per day'}
                 </p>
               </div>
 
               <button
                 type="submit"
                 className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                Calculate Carbon Footprint
+                {t('calculator.calculate')}
               </button>
             </form>
           </div>
@@ -213,7 +212,7 @@ export const Calculator = () => {
           {result && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-                Your Carbon Footprint
+                {language === 'bn' ? 'আপনার কার্বন ফুটপ্রিন্ট' : 'Your Carbon Footprint'}
               </h2>
 
               <div className="text-center mb-8">
@@ -221,13 +220,15 @@ export const Calculator = () => {
                   {result.totalCO2}
                 </p>
                 <p className="text-2xl text-gray-600 dark:text-gray-300 mb-4">
-                  kg CO₂ per day
+                  {language === 'bn' ? 'কেজি CO₂ প্রতিদিন' : 'kg CO₂ per day'}
                 </p>
                 <div
                   className={`inline-block px-6 py-2 rounded-full ${getCategoryColor(
                     result.category
                   )} bg-opacity-10 font-bold text-lg`}>
-                  {result.category} Impact
+                  {language === 'bn' 
+                    ? (result.category === 'Low' ? 'কম প্রভাব' : result.category === 'Medium' ? 'মাঝারি প্রভাব' : 'উচ্চ প্রভাব')
+                    : `${result.category} Impact`}
                 </div>
               </div>
 
@@ -236,10 +237,10 @@ export const Calculator = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="flex items-center text-gray-700 dark:text-gray-300">
                       <Zap className="h-5 w-5 mr-2 text-yellow-500" />
-                      Electricity
+                      {language === 'bn' ? 'বিদ্যুৎ' : 'Electricity'}
                     </span>
                     <span className="font-bold text-gray-800 dark:text-white">
-                      {result.breakdown.electricity} kg CO₂
+                      {result.breakdown.electricity} {language === 'bn' ? 'কেজি CO₂' : 'kg CO₂'}
                     </span>
                   </div>
                   <div className="bg-yellow-200 dark:bg-yellow-700 h-2 rounded-full">
@@ -258,10 +259,10 @@ export const Calculator = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="flex items-center text-gray-700 dark:text-gray-300">
                       <Car className="h-5 w-5 mr-2 text-blue-500" />
-                      Transportation
+                      {language === 'bn' ? 'পরিবহন' : 'Transportation'}
                     </span>
                     <span className="font-bold text-gray-800 dark:text-white">
-                      {result.breakdown.transport} kg CO₂
+                      {result.breakdown.transport} {language === 'bn' ? 'কেজি CO₂' : 'kg CO₂'}
                     </span>
                   </div>
                   <div className="bg-blue-200 dark:bg-blue-700 h-2 rounded-full">
@@ -280,10 +281,10 @@ export const Calculator = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="flex items-center text-gray-700 dark:text-gray-300">
                       <Trash2 className="h-5 w-5 mr-2 text-red-500" />
-                      Waste
+                      {language === 'bn' ? 'বর্জ্য' : 'Waste'}
                     </span>
                     <span className="font-bold text-gray-800 dark:text-white">
-                      {result.breakdown.waste} kg CO₂
+                      {result.breakdown.waste} {language === 'bn' ? 'কেজি CO₂' : 'kg CO₂'}
                     </span>
                   </div>
                   <div className="bg-red-200 dark:bg-red-700 h-2 rounded-full">
@@ -301,30 +302,38 @@ export const Calculator = () => {
 
               <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 p-6 rounded-lg">
                 <h3 className="font-bold text-gray-800 dark:text-white mb-3">
-                  Recommendations:
+                  {language === 'bn' ? 'পরামর্শ:' : 'Recommendations:'}
                 </h3>
                 <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                   {result.breakdown.electricity > 8 && (
                     <li className="flex items-start">
                       <TrendingDown className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
-                      Switch to energy-efficient appliances and LED bulbs
+                      {language === 'bn' 
+                        ? 'শক্তি-সাশ্রয়ী যন্ত্রপাতি এবং LED বাল্ব ব্যবহার করুন' 
+                        : 'Switch to energy-efficient appliances and LED bulbs'}
                     </li>
                   )}
                   {result.breakdown.transport > 5 && (
                     <li className="flex items-start">
                       <TrendingDown className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
-                      Use public transport or carpool to reduce emissions
+                      {language === 'bn' 
+                        ? 'নির্গমন কমাতে পাবলিক ট্রান্সপোর্ট বা কারপুল ব্যবহার করুন' 
+                        : 'Use public transport or carpool to reduce emissions'}
                     </li>
                   )}
                   {result.breakdown.waste > 1 && (
                     <li className="flex items-start">
                       <TrendingDown className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
-                      Reduce plastic use and compost organic waste
+                      {language === 'bn' 
+                        ? 'প্লাস্টিকের ব্যবহার কমান এবং জৈব বর্জ্য কম্পোস্ট করুন' 
+                        : 'Reduce plastic use and compost organic waste'}
                     </li>
                   )}
                   <li className="flex items-start">
                     <TrendingUp className="h-4 w-4 mr-2 text-blue-600 mt-0.5" />
-                    Plant trees to offset your carbon emissions
+                    {language === 'bn' 
+                      ? 'আপনার কার্বন নির্গমন অফসেট করতে গাছ লাগান' 
+                      : 'Plant trees to offset your carbon emissions'}
                   </li>
                 </ul>
               </div>

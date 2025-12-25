@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { quizApi, profileApi } from '../lib/api';
 import { useNotification } from '../contexts/NotificationContext';
 import { checkAndAwardBadges } from '../utils/badges';
@@ -25,6 +26,7 @@ interface Answer {
 
 export const Quiz = () => {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const { showNotification } = useNotification();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -171,7 +173,9 @@ export const Quiz = () => {
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading quiz questions...</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            {language === 'bn' ? 'কুইজ প্রশ্ন লোড হচ্ছে...' : 'Loading quiz questions...'}
+          </p>
         </div>
       </div>
     );
@@ -186,7 +190,7 @@ export const Quiz = () => {
               onClick={() => setShowAdminPanel(false)}
               className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              Back to Quiz
+              {language === 'bn' ? 'কুইজে ফিরে যান' : 'Back to Quiz'}
             </button>
           </div>
           <AdminQuizManager />
@@ -202,17 +206,19 @@ export const Quiz = () => {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-12 text-center">
             <Sparkles className="h-24 w-24 text-emerald-500 mx-auto mb-6" />
             <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">
-              No Quiz Questions Available
+              {language === 'bn' ? 'কোন কুইজ প্রশ্ন পাওয়া যায়নি' : 'No Quiz Questions Available'}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-              Check back soon for new environmental quiz questions!
+              {language === 'bn' 
+                ? 'শীঘ্রই নতুন পরিবেশ সংক্রান্ত কুইজ প্রশ্নের জন্য আবার দেখুন!' 
+                : 'Check back soon for new environmental quiz questions!'}
             </p>
             {isAdmin && (
               <button
                 onClick={() => setShowAdminPanel(true)}
                 className="px-8 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-all transform hover:scale-105"
               >
-                Add Questions
+                {language === 'bn' ? 'প্রশ্ন যোগ করুন' : 'Add Questions'}
               </button>
             )}
           </div>
@@ -236,7 +242,7 @@ export const Quiz = () => {
                 <Award className="h-20 w-20 text-white" />
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">
-                Quiz Complete!
+                {language === 'bn' ? 'কুইজ সম্পন্ন!' : 'Quiz Complete!'}
               </h2>
               <div className="flex items-center justify-center space-x-2 mb-6">
                 <div className="h-1 w-20 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
@@ -248,19 +254,19 @@ export const Quiz = () => {
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                 <Target className="h-10 w-10 mb-3 opacity-80" />
-                <p className="text-sm opacity-90 mb-1">Your Score</p>
+                <p className="text-sm opacity-90 mb-1">{language === 'bn' ? 'আপনার স্কোর' : 'Your Score'}</p>
                 <p className="text-4xl font-bold">{percentage}%</p>
               </div>
 
               <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                 <CheckCircle className="h-10 w-10 mb-3 opacity-80" />
-                <p className="text-sm opacity-90 mb-1">Correct Answers</p>
+                <p className="text-sm opacity-90 mb-1">{language === 'bn' ? 'সঠিক উত্তর' : 'Correct Answers'}</p>
                 <p className="text-4xl font-bold">{correctAnswers}/{questions.length}</p>
               </div>
 
               <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-transform">
                 <Clock className="h-10 w-10 mb-3 opacity-80" />
-                <p className="text-sm opacity-90 mb-1">Time Taken</p>
+                <p className="text-sm opacity-90 mb-1">{language === 'bn' ? 'সময় নেওয়া' : 'Time Taken'}</p>
                 <p className="text-4xl font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</p>
               </div>
             </div>
@@ -269,24 +275,32 @@ export const Quiz = () => {
               <div className="flex items-start space-x-4">
                 <TrendingUp className="h-8 w-8 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Performance Analysis</h3>
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                    {language === 'bn' ? 'পারফরম্যান্স বিশ্লেষণ' : 'Performance Analysis'}
+                  </h3>
                   {percentage >= 80 && (
                     <p className="text-gray-700 dark:text-gray-200">
-                      Outstanding! You are an eco champion with excellent knowledge of environmental topics!
+                      {language === 'bn' 
+                        ? 'অসাধারণ! আপনি পরিবেশ বিষয়ক চমৎকার জ্ঞানের অধিকারী একজন ইকো চ্যাম্পিয়ন!'
+                        : 'Outstanding! You are an eco champion with excellent knowledge of environmental topics!'}
                     </p>
                   )}
                   {percentage >= 60 && percentage < 80 && (
                     <p className="text-gray-700 dark:text-gray-200">
-                      Great job! You have a solid understanding of sustainability. Keep learning to become an expert!
+                      {language === 'bn' 
+                        ? 'দারুণ কাজ! আপনার টেকসই বিষয়ে ভালো ধারণা আছে। বিশেষজ্ঞ হতে শিখতে থাকুন!'
+                        : 'Great job! You have a solid understanding of sustainability. Keep learning to become an expert!'}
                     </p>
                   )}
                   {percentage < 60 && (
                     <p className="text-gray-700 dark:text-gray-200">
-                      Good effort! Explore our Tips and Blog sections to enhance your environmental knowledge!
+                      {language === 'bn' 
+                        ? 'ভালো চেষ্টা! আপনার পরিবেশ জ্ঞান বাড়াতে আমাদের টিপস এবং ব্লগ সেকশন দেখুন!'
+                        : 'Good effort! Explore our Tips and Blog sections to enhance your environmental knowledge!'}
                     </p>
                   )}
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                    Total Points Earned: <span className="font-bold text-emerald-600">{score}</span>
+                    {language === 'bn' ? 'মোট অর্জিত পয়েন্ট:' : 'Total Points Earned:'} <span className="font-bold text-emerald-600">{score}</span>
                   </p>
                 </div>
               </div>
@@ -297,14 +311,14 @@ export const Quiz = () => {
                 onClick={restartQuiz}
                 className="flex-1 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg"
               >
-                Try Again
+                {language === 'bn' ? 'আবার চেষ্টা করুন' : 'Try Again'}
               </button>
               {isAdmin && (
                 <button
                   onClick={() => setShowAdminPanel(true)}
                   className="flex-1 px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-105 shadow-lg"
                 >
-                  Manage Questions
+                  {language === 'bn' ? 'প্রশ্ন পরিচালনা করুন' : 'Manage Questions'}
                 </button>
               )}
             </div>
@@ -328,20 +342,26 @@ export const Quiz = () => {
               onClick={() => setShowAdminPanel(true)}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
             >
-              Admin Panel
+              {language === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel'}
             </button>
           </div>
         )}
 
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">Eco Quiz</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white">
+              {t('quiz.title')}
+            </h1>
             <div className="flex items-center space-x-4">
               <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getDifficultyColor(question.difficulty)}`}>
-                {question.difficulty}
+                {language === 'bn' 
+                  ? (question.difficulty === 'easy' ? 'সহজ' : question.difficulty === 'medium' ? 'মাঝারি' : 'কঠিন')
+                  : question.difficulty}
               </span>
               <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
-                Question {currentQuestionIndex + 1} of {questions.length}
+                {language === 'bn' 
+                  ? `প্রশ্ন ${currentQuestionIndex + 1} এর মধ্যে ${questions.length}`
+                  : `Question ${currentQuestionIndex + 1} of ${questions.length}`}
               </span>
             </div>
           </div>
@@ -356,7 +376,7 @@ export const Quiz = () => {
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <span className="flex items-center space-x-2">
               <Target className="h-4 w-4" />
-              <span>Score: {score} points</span>
+              <span>{language === 'bn' ? `স্কোর: ${score} পয়েন্ট` : `Score: ${score} points`}</span>
             </span>
             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full font-medium">
               {question.category}
@@ -419,19 +439,19 @@ export const Quiz = () => {
                 {isCorrect ? (
                   <>
                     <CheckCircle className="h-6 w-6" />
-                    <span>Correct!</span>
+                    <span>{language === 'bn' ? 'সঠিক!' : 'Correct!'}</span>
                   </>
                 ) : (
                   <>
                     <XCircle className="h-6 w-6" />
-                    <span>Incorrect</span>
+                    <span>{language === 'bn' ? 'ভুল' : 'Incorrect'}</span>
                   </>
                 )}
               </p>
               <p className="text-base leading-relaxed">{question.explanation}</p>
               {!isCorrect && correctAnswerObj && (
                 <p className="mt-3 font-semibold">
-                  Correct answer: {correctAnswerObj.answer_text}
+                  {language === 'bn' ? 'সঠিক উত্তর:' : 'Correct answer:'} {correctAnswerObj.answer_text}
                 </p>
               )}
             </div>

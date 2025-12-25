@@ -77,6 +77,10 @@ JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRES_IN=7d
 PORT=5000
 NODE_ENV=development
+
+# Email Configuration (Gmail SMTP)
+EMAIL_USER=your_gmail_address@gmail.com
+EMAIL_APP_PASSWORD=your_gmail_app_password
 ```
 
 ### 3. Seed Database (Optional)

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 import { blogApi } from '../lib/api';
 import { BookOpen, Calendar, User } from 'lucide-react';
 
@@ -16,6 +17,7 @@ interface BlogPost {
 }
 
 export const Blog = () => {
+  const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export const Blog = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -54,7 +56,9 @@ export const Blog = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">Loading blog posts...</div>
+        <div className="text-xl text-gray-600 dark:text-gray-300">
+          {language === 'bn' ? 'ব্লগ পোস্ট লোড হচ্ছে...' : 'Loading blog posts...'}
+        </div>
       </div>
     );
   }
@@ -67,7 +71,7 @@ export const Blog = () => {
             onClick={() => setSelectedPost(null)}
             className="mb-6 px-4 py-2 text-green-600 hover:text-green-700 font-semibold"
           >
-            ← Back to Blog
+            ← {language === 'bn' ? 'ব্লগে ফিরে যান' : 'Back to Blog'}
           </button>
 
           <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
@@ -140,10 +144,12 @@ export const Blog = () => {
         <div className="text-center mb-12">
           <BookOpen className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            Environmental Blog
+            {language === 'bn' ? 'পরিবেশ ব্লগ' : 'Environmental Blog'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Stories, insights, and updates about Bangladesh's environment
+            {language === 'bn' 
+              ? 'বাংলাদেশের পরিবেশ সম্পর্কে গল্প, অন্তর্দৃষ্টি এবং আপডেট' 
+              : "Stories, insights, and updates about Bangladesh's environment"}
           </p>
         </div>
 
@@ -151,7 +157,9 @@ export const Blog = () => {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              No blog posts available yet. Check back soon!
+              {language === 'bn' 
+                ? 'এখনও কোনো ব্লগ পোস্ট নেই। শীঘ্রই আবার দেখুন!' 
+                : 'No blog posts available yet. Check back soon!'}
             </p>
           </div>
         ) : (
@@ -183,7 +191,7 @@ export const Blog = () => {
                   {post.isExternal && (
                     <div className="mb-2">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                        External Source
+                        {language === 'bn' ? 'বহিরাগত উৎস' : 'External Source'}
                       </span>
                     </div>
                   )}
@@ -200,7 +208,7 @@ export const Blog = () => {
                   </div>
 
                   <button className="mt-4 text-green-600 hover:text-green-700 font-semibold">
-                    Read More →
+                    {language === 'bn' ? 'আরও পড়ুন →' : 'Read More →'}
                   </button>
                 </div>
               </article>

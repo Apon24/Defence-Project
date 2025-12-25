@@ -7,6 +7,7 @@ import {
   MapPin, Target, BarChart3, Navigation, Locate
 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -415,6 +416,7 @@ interface PlantedTree {
 
 export const Map = () => {
   const { state, plantTree } = useApp();
+  const { language } = useLanguage();
   const [selectedZone, setSelectedZone] = useState<EnvironmentalZone | null>(null);
   const [showTreeSelector, setShowTreeSelector] = useState(false);
   const [plantedTrees, setPlantedTrees] = useState<PlantedTree[]>([]);
@@ -580,10 +582,10 @@ export const Map = () => {
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
                   <Leaf className="w-10 h-10" />
-                  Bangladesh Environmental Monitoring System
+                  {language === 'bn' ? 'বাংলাদেশ পরিবেশ পর্যবেক্ষণ সিস্টেম' : 'Bangladesh Environmental Monitoring System'}
                 </h1>
                 <p className="text-green-100 text-sm md:text-base">
-                  Real-time deforestation tracking & reforestation initiative
+                  {language === 'bn' ? 'রিয়েল-টাইম বনভূমি ক্ষয় ট্র্যাকিং ও বনায়ন উদ্যোগ' : 'Real-time deforestation tracking & reforestation initiative'}
                 </p>
               </div>
               <motion.button
@@ -592,7 +594,9 @@ export const Map = () => {
                 onClick={() => setShowSidePanel(!showSidePanel)}
                 className="hidden md:block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-lg transition-all"
               >
-                {showSidePanel ? 'Hide' : 'Show'} Stats
+                {showSidePanel 
+                  ? (language === 'bn' ? 'পরিসংখ্যান লুকান' : 'Hide Stats')
+                  : (language === 'bn' ? 'পরিসংখ্যান দেখান' : 'Show Stats')}
               </motion.button>
             </div>
           </div>
@@ -608,7 +612,7 @@ export const Map = () => {
             >
               <TreePine className="w-6 h-6 mb-2 opacity-80" />
               <div className="text-2xl font-bold">{plantedTrees.length}</div>
-              <div className="text-xs opacity-90">Trees Planted</div>
+              <div className="text-xs opacity-90">{language === 'bn' ? 'গাছ লাগানো হয়েছে' : 'Trees Planted'}</div>
             </motion.div>
 
             <motion.div
@@ -619,7 +623,7 @@ export const Map = () => {
             >
               <AlertTriangle className="w-6 h-6 mb-2 opacity-80" />
               <div className="text-2xl font-bold">{environmentalZones.filter(z => z.urgencyLevel === 'critical').length}</div>
-              <div className="text-xs opacity-90">Critical Zones</div>
+              <div className="text-xs opacity-90">{language === 'bn' ? 'সংকটপূর্ণ এলাকা' : 'Critical Zones'}</div>
             </motion.div>
 
             <motion.div
@@ -630,7 +634,7 @@ export const Map = () => {
             >
               <Wind className="w-6 h-6 mb-2 opacity-80" />
               <div className="text-2xl font-bold">{getTotalCO2Saved()}</div>
-              <div className="text-xs opacity-90">kg CO₂ Saved</div>
+              <div className="text-xs opacity-90">{language === 'bn' ? 'কেজি CO₂ সঞ্চয়' : 'kg CO₂ Saved'}</div>
             </motion.div>
 
             <motion.div
@@ -641,7 +645,7 @@ export const Map = () => {
             >
               <Target className="w-6 h-6 mb-2 opacity-80" />
               <div className="text-2xl font-bold">{getTotalTreesNeeded().toLocaleString()}</div>
-              <div className="text-xs opacity-90">Target Trees</div>
+              <div className="text-xs opacity-90">{language === 'bn' ? 'লক্ষ্য গাছ' : 'Target Trees'}</div>
             </motion.div>
 
             <motion.div
@@ -652,7 +656,7 @@ export const Map = () => {
             >
               <Award className="w-6 h-6 mb-2 opacity-80" />
               <div className="text-2xl font-bold">{getProgressPercentage().toFixed(3)}%</div>
-              <div className="text-xs opacity-90">Progress</div>
+              <div className="text-xs opacity-90">{language === 'bn' ? 'অগ্রগতি' : 'Progress'}</div>
             </motion.div>
           </div>
 
@@ -660,10 +664,10 @@ export const Map = () => {
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-green-600" />
-                Bangladesh Reforestation Progress
+                {language === 'bn' ? 'বাংলাদেশ বনায়ন অগ্রগতি' : 'Bangladesh Reforestation Progress'}
               </h3>
               <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {plantedTrees.length} / {getTotalTreesNeeded().toLocaleString()} trees
+                {plantedTrees.length} / {getTotalTreesNeeded().toLocaleString()} {language === 'bn' ? 'গাছ' : 'trees'}
               </span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
@@ -767,28 +771,28 @@ export const Map = () => {
                                   <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                                     <div className="flex items-center gap-1 text-red-600 dark:text-red-400 mb-1">
                                       <Activity className="w-3 h-3" />
-                                      <span className="font-semibold">Deforestation</span>
+                                      <span className="font-semibold">{language === 'bn' ? 'বন উজাড়' : 'Deforestation'}</span>
                                     </div>
-                                    <div className="font-bold text-gray-900 dark:text-white">{zone.deforestationRate}% /year</div>
+                                    <div className="font-bold text-gray-900 dark:text-white">{zone.deforestationRate}% /{language === 'bn' ? 'বছর' : 'year'}</div>
                                   </div>
                                   <div className="bg-orange-50 dark:bg-orange-900/20 p-2 rounded-lg">
                                     <div className="flex items-center gap-1 text-orange-600 dark:text-orange-400 mb-1">
                                       <Droplets className="w-3 h-3" />
-                                      <span className="font-semibold">Soil Erosion</span>
+                                      <span className="font-semibold">{language === 'bn' ? 'মাটি ক্ষয়' : 'Soil Erosion'}</span>
                                     </div>
                                     <div className="font-bold text-gray-900 dark:text-white">{zone.soilErosion}</div>
                                   </div>
                                   <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg">
                                     <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 mb-1">
                                       <Wind className="w-3 h-3" />
-                                      <span className="font-semibold">AQI</span>
+                                      <span className="font-semibold">{language === 'bn' ? 'বায়ু মান' : 'AQI'}</span>
                                     </div>
                                     <div className="font-bold text-gray-900 dark:text-white">{zone.pollutionIndex}</div>
                                   </div>
                                   <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
                                     <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 mb-1">
                                       <TreePine className="w-3 h-3" />
-                                      <span className="font-semibold">Trees Here</span>
+                                      <span className="font-semibold">{language === 'bn' ? 'এখানে গাছ' : 'Trees Here'}</span>
                                     </div>
                                     <div className="font-bold text-gray-900 dark:text-white">{treeCount}</div>
                                   </div>
@@ -797,7 +801,7 @@ export const Map = () => {
                                 <div className="mb-3">
                                   <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                                     <AlertTriangle className="w-3 h-3" />
-                                    Environmental Facts:
+                                    {language === 'bn' ? 'পরিবেশগত তথ্য:' : 'Environmental Facts:'}
                                   </h4>
                                   <ul className="text-xs space-y-1">
                                     {zone.environmentalFacts.slice(0, 2).map((fact, i) => (
@@ -818,7 +822,7 @@ export const Map = () => {
                                     className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
                                   >
                                     <TreePine className="w-4 h-4" />
-                                    Plant Tree Here
+                                    {language === 'bn' ? 'এখানে গাছ লাগান' : 'Plant Tree Here'}
                                   </button>
                                 )}
 
@@ -826,7 +830,7 @@ export const Map = () => {
                                   <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-2 text-center">
                                     <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-bold text-sm">
                                       <Sparkles className="w-4 h-4" />
-                                      <span>{treeCount} Tree{treeCount > 1 ? 's' : ''} Planted! 🌳</span>
+                                      <span>{treeCount} {language === 'bn' ? 'টি গাছ লাগানো হয়েছে!' : `Tree${treeCount > 1 ? 's' : ''} Planted!`} 🌳</span>
                                     </div>
                                   </div>
                                 )}
@@ -839,27 +843,27 @@ export const Map = () => {
                   </MapContainer>
 
                   <div className="absolute bottom-4 left-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl p-3 shadow-xl z-[1000]">
-                    <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-2">Map Legend</h4>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-2">{language === 'bn' ? 'মানচিত্র লেজেন্ড' : 'Map Legend'}</h4>
                     <div className="space-y-1.5 text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                        <span className="text-gray-700 dark:text-gray-300">Critical Zone</span>
+                        <span className="text-gray-700 dark:text-gray-300">{language === 'bn' ? 'সংকটপূর্ণ এলাকা' : 'Critical Zone'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></div>
-                        <span className="text-gray-700 dark:text-gray-300">High Priority</span>
+                        <span className="text-gray-700 dark:text-gray-300">{language === 'bn' ? 'উচ্চ অগ্রাধিকার' : 'High Priority'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-                        <span className="text-gray-700 dark:text-gray-300">Medium Priority</span>
+                        <span className="text-gray-700 dark:text-gray-300">{language === 'bn' ? 'মাঝারি অগ্রাধিকার' : 'Medium Priority'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🌳</span>
-                        <span className="text-gray-700 dark:text-gray-300">Tree Planted</span>
+                        <span className="text-gray-700 dark:text-gray-300">{language === 'bn' ? 'গাছ লাগানো হয়েছে' : 'Tree Planted'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span className="text-gray-700 dark:text-gray-300">Your Location</span>
+                        <span className="text-gray-700 dark:text-gray-300">{language === 'bn' ? 'আপনার অবস্থান' : 'Your Location'}</span>
                       </div>
                     </div>
                   </div>
@@ -881,12 +885,14 @@ export const Map = () => {
                       {locationLoading ? (
                         <>
                           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Locating...</span>
+                          <span>{language === 'bn' ? 'খোঁজা হচ্ছে...' : 'Locating...'}</span>
                         </>
                       ) : (
                         <>
                           <Locate className="w-5 h-5" />
-                          <span>{userLocation ? 'My Location' : 'Find Me'}</span>
+                          <span>{userLocation 
+                            ? (language === 'bn' ? 'আমার অবস্থান' : 'My Location')
+                            : (language === 'bn' ? 'আমাকে খুঁজুন' : 'Find Me')}</span>
                         </>
                       )}
                     </motion.button>
@@ -926,7 +932,7 @@ export const Map = () => {
                   <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg">
                     <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                       <BarChart3 className="w-5 h-5" />
-                      District Rankings
+                      {language === 'bn' ? 'জেলা র‍্যাংকিং' : 'District Rankings'}
                     </h3>
                     <div className="space-y-2">
                       {getDistrictStats().slice(0, 5).map(([district, count], index) => (
@@ -940,7 +946,7 @@ export const Map = () => {
                       ))}
                       {getDistrictStats().length === 0 && (
                         <p className="text-white/70 text-sm text-center py-4">
-                          No trees planted yet. Be the first!
+                          {language === 'bn' ? 'এখনও কোনো গাছ লাগানো হয়নি। প্রথম হোন!' : 'No trees planted yet. Be the first!'}
                         </p>
                       )}
                     </div>
@@ -949,7 +955,7 @@ export const Map = () => {
                   <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-yellow-500" />
-                      Recent Activity
+                      {language === 'bn' ? 'সাম্প্রতিক কার্যকলাপ' : 'Recent Activity'}
                     </h3>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {plantedTrees.slice(-5).reverse().map((tree) => (
@@ -961,31 +967,31 @@ export const Map = () => {
                             </span>
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            {tree.zone.district} • {new Date(tree.date).toLocaleDateString()}
+                            {tree.zone.district} • {new Date(tree.date).toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US')}
                           </div>
                         </div>
                       ))}
                       {plantedTrees.length === 0 && (
                         <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                          Start planting trees to see activity here
+                          {language === 'bn' ? 'কার্যকলাপ দেখতে গাছ লাগানো শুরু করুন' : 'Start planting trees to see activity here'}
                         </p>
                       )}
                     </div>
                   </div>
 
                   <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-4 text-white shadow-lg">
-                    <h3 className="text-sm font-bold mb-2">Your Impact</h3>
+                    <h3 className="text-sm font-bold mb-2">{language === 'bn' ? 'আপনার প্রভাব' : 'Your Impact'}</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="opacity-90">Total Contribution:</span>
-                        <span className="font-bold">{plantedTrees.length} trees</span>
+                        <span className="opacity-90">{language === 'bn' ? 'মোট অবদান:' : 'Total Contribution:'}</span>
+                        <span className="font-bold">{plantedTrees.length} {language === 'bn' ? 'গাছ' : 'trees'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-90">CO₂ Offset:</span>
-                        <span className="font-bold">{getTotalCO2Saved()} kg/year</span>
+                        <span className="opacity-90">{language === 'bn' ? 'CO₂ অফসেট:' : 'CO₂ Offset:'}</span>
+                        <span className="font-bold">{getTotalCO2Saved()} {language === 'bn' ? 'কেজি/বছর' : 'kg/year'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-90">Districts Helped:</span>
+                        <span className="opacity-90">{language === 'bn' ? 'সাহায্যকৃত জেলা:' : 'Districts Helped:'}</span>
                         <span className="font-bold">{getDistrictStats().length}</span>
                       </div>
                     </div>
@@ -1016,7 +1022,7 @@ export const Map = () => {
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <TreePine className="w-6 h-6 text-green-600" />
-                      Select Tree Type
+                      {language === 'bn' ? 'গাছের ধরন নির্বাচন করুন' : 'Select Tree Type'}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {selectedZone.name}, {selectedZone.district}
@@ -1044,8 +1050,8 @@ export const Map = () => {
                         {tree.name}
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                        <div>CO₂: {tree.co2Absorption} kg/yr</div>
-                        <div>Growth: {tree.growthRate}</div>
+                        <div>CO₂: {tree.co2Absorption} {language === 'bn' ? 'কেজি/বছর' : 'kg/yr'}</div>
+                        <div>{language === 'bn' ? 'বৃদ্ধি:' : 'Growth:'} {tree.growthRate}</div>
                         <div className="text-green-600 dark:text-green-400 font-semibold">
                           {tree.nativeStatus}
                         </div>
@@ -1058,7 +1064,9 @@ export const Map = () => {
                   <p className="text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
                     <Leaf className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>
-                      Recommended species for {selectedZone.district}: {selectedZone.localSpecies.join(', ')}
+                      {language === 'bn' 
+                        ? `${selectedZone.district} এর জন্য প্রস্তাবিত প্রজাতি: ${selectedZone.localSpecies.join(', ')}`
+                        : `Recommended species for ${selectedZone.district}: ${selectedZone.localSpecies.join(', ')}`}
                     </span>
                   </p>
                 </div>
@@ -1087,13 +1095,13 @@ export const Map = () => {
                   {lastPlantedTree.treeType.emoji}
                 </motion.div>
                 <h3 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
-                  Tree Planted Successfully! 🎉
+                  {language === 'bn' ? 'সফলভাবে গাছ লাগানো হয়েছে! 🎉' : 'Tree Planted Successfully! 🎉'}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {lastPlantedTree.treeType.name} in {lastPlantedTree.zone.district}
+                  {lastPlantedTree.treeType.name} {language === 'bn' ? `${lastPlantedTree.zone.district}-এ` : `in ${lastPlantedTree.zone.district}`}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-                  +{lastPlantedTree.treeType.co2Absorption} kg CO₂/year saved
+                  +{lastPlantedTree.treeType.co2Absorption} {language === 'bn' ? 'কেজি CO₂/বছর সঞ্চয়' : 'kg CO₂/year saved'}
                 </p>
               </div>
             </motion.div>

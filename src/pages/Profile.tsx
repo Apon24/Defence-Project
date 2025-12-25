@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { profileApi, badgesApi } from '../lib/api';
 import { useNotification } from '../contexts/NotificationContext';
@@ -22,6 +23,7 @@ interface Badge {
 
 export const Profile = () => {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
@@ -99,7 +101,9 @@ export const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">Loading profile...</div>
+        <div className="text-xl text-gray-600 dark:text-gray-300">
+          {language === 'bn' ? 'প্রোফাইল লোড হচ্ছে...' : 'Loading profile...'}
+        </div>
       </div>
     );
   }
@@ -113,8 +117,12 @@ export const Profile = () => {
               <User className="h-12 w-12 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">My Profile</h1>
-              <p className="text-gray-600 dark:text-gray-300">Manage your account settings</p>
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+                {language === 'bn' ? 'আমার প্রোফাইল' : 'My Profile'}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300">
+                {language === 'bn' ? 'আপনার অ্যাকাউন্ট সেটিংস পরিচালনা করুন' : 'Manage your account settings'}
+              </p>
             </div>
           </div>
 
@@ -122,7 +130,7 @@ export const Profile = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Mail className="inline h-4 w-4 mr-2" />
-                Email
+                {language === 'bn' ? 'ইমেইল' : 'Email'}
               </label>
               <input
                 type="email"
@@ -134,20 +142,20 @@ export const Profile = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
+                {language === 'bn' ? 'পুরো নাম' : 'Full Name'}
               </label>
               <input
                 type="text"
                 value={profile.fullName}
                 onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-green-500"
-                placeholder="Enter your full name"
+                placeholder={language === 'bn' ? 'আপনার পুরো নাম লিখুন' : 'Enter your full name'}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Avatar URL
+                {language === 'bn' ? 'অ্যাভাটার URL' : 'Avatar URL'}
               </label>
               <input
                 type="url"
@@ -160,14 +168,14 @@ export const Profile = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Bio
+                {language === 'bn' ? 'বায়ো' : 'Bio'}
               </label>
               <textarea
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-green-500"
-                placeholder="Tell us about yourself..."
+                placeholder={language === 'bn' ? 'নিজের সম্পর্কে বলুন...' : 'Tell us about yourself...'}
               />
             </div>
 
@@ -177,7 +185,9 @@ export const Profile = () => {
               className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 transition-colors"
             >
               <Save className="h-5 w-5" />
-              <span>{saving ? 'Saving...' : 'Save Profile'}</span>
+              <span>{saving 
+                ? (language === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') 
+                : (language === 'bn' ? 'প্রোফাইল সংরক্ষণ করুন' : 'Save Profile')}</span>
             </button>
           </div>
         </div>
@@ -185,13 +195,17 @@ export const Profile = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div className="flex items-center mb-6">
             <Award className="h-8 w-8 text-yellow-500 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Badges</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+              {language === 'bn' ? 'আমার ব্যাজ' : 'My Badges'}
+            </h2>
           </div>
 
           {badges.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                You haven't earned any badges yet. Complete quizzes, challenges, and interact with the community to earn badges!
+                {language === 'bn' 
+                  ? 'আপনি এখনও কোন ব্যাজ অর্জন করেননি। কুইজ, চ্যালেঞ্জ সম্পন্ন করুন এবং কমিউনিটির সাথে যোগাযোগ করুন ব্যাজ অর্জন করতে!'
+                  : "You haven't earned any badges yet. Complete quizzes, challenges, and interact with the community to earn badges!"}
               </p>
             </div>
           ) : (
@@ -209,7 +223,7 @@ export const Profile = () => {
                       <h3 className="font-bold text-gray-800 dark:text-white">{badge.name}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{badge.description}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Earned: {new Date(badge.earned_at).toLocaleDateString()}
+                        {language === 'bn' ? 'অর্জিত:' : 'Earned:'} {new Date(badge.earned_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

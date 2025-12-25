@@ -198,6 +198,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Dashboard
     "dashboard.title": "ড্যাশবোর্ড",
+    "dashboard.subtitle": "আপনার টেকসই যাত্রা ট্র্যাক করুন",
     "dashboard.welcome": "স্বাগতম",
     "dashboard.loading": "ড্যাশবোর্ড লোড হচ্ছে...",
     "dashboard.export": "ডেটা এক্সপোর্ট",
@@ -513,6 +514,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Dashboard
     "dashboard.title": "Dashboard",
+    "dashboard.subtitle": "Track your sustainability journey",
     "dashboard.welcome": "Welcome",
     "dashboard.loading": "Loading dashboard...",
     "dashboard.export": "Export Data",

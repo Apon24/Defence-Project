@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { communityApi } from '../lib/api';
 import { Users, Send, ThumbsUp, Clock } from 'lucide-react';
@@ -18,6 +19,7 @@ interface CommunityPost {
 
 export const Community = () => {
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [newPost, setNewPost] = useState('');
@@ -71,6 +73,14 @@ export const Community = () => {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
+    if (language === 'bn') {
+      if (diffMins < 1) return 'এইমাত্র';
+      if (diffMins < 60) return `${diffMins} মিনিট আগে`;
+      if (diffHours < 24) return `${diffHours} ঘণ্টা আগে`;
+      if (diffDays < 7) return `${diffDays} দিন আগে`;
+      return date.toLocaleDateString('bn-BD');
+    }
+    
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins} min ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
@@ -81,7 +91,9 @@ export const Community = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-xl text-gray-600 dark:text-gray-300">Loading community...</div>
+        <div className="text-xl text-gray-600 dark:text-gray-300">
+          {language === 'bn' ? 'কমিউনিটি লোড হচ্ছে...' : 'Loading community...'}
+        </div>
       </div>
     );
   }
@@ -92,21 +104,23 @@ export const Community = () => {
         <div className="text-center mb-12">
           <Users className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-            Eco Community
+            {t('community.title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Share ideas, inspire others, and learn from fellow eco-warriors
+            {t('community.subtitle')}
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-            Share Your Eco Idea
+            {language === 'bn' ? 'আপনার ইকো আইডিয়া শেয়ার করুন' : 'Share Your Eco Idea'}
           </h2>
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
-            placeholder="What eco-friendly action did you take today? Share your tips, experiences, or ideas..."
+            placeholder={language === 'bn' 
+              ? 'আজ আপনি কোন পরিবেশবান্ধব কাজ করেছেন? আপনার টিপস, অভিজ্ঞতা বা আইডিয়া শেয়ার করুন...'
+              : 'What eco-friendly action did you take today? Share your tips, experiences, or ideas...'}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white resize-none"
             rows={4}
           />
@@ -117,7 +131,7 @@ export const Community = () => {
               className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="h-5 w-5" />
-              <span>Post</span>
+              <span>{t('community.post.button')}</span>
             </button>
           </div>
         </div>
@@ -127,7 +141,9 @@ export const Community = () => {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
               <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <p className="text-xl text-gray-600 dark:text-gray-300">
-                No posts yet. Be the first to share your eco idea!
+                {language === 'bn' 
+                  ? 'এখনও কোনো পোস্ট নেই। প্রথম ইকো আইডিয়া শেয়ার করুন!'
+                  : 'No posts yet. Be the first to share your eco idea!'}
               </p>
             </div>
           ) : (
@@ -139,7 +155,7 @@ export const Community = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="font-bold text-gray-800 dark:text-white">
-                      {post.profiles?.full_name || 'Anonymous User'}
+                      {post.profiles?.full_name || (language === 'bn' ? 'অজানা ব্যবহারকারী' : 'Anonymous User')}
                     </p>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                       <Clock className="h-4 w-4 mr-1" />
@@ -167,7 +183,8 @@ export const Community = () => {
         </div>
 
         <div className="mt-12 bg-gradient-to-r from-green-600 to-red-600 rounded-2xl p-8 text-white">
-          <h3 className="text-2xl font-bold mb-4">Community Guidelines</h3>
+          <h3 className="text-2xl font-bold mb-4">
+            {language === 'bn' ? 'কমিউনিটি নির্দেশিকা' : 'Community Guidelines'}</h3>
           <ul className="space-y-2 text-green-50">
             <li>• Share positive, actionable eco-friendly tips</li>
             <li>• Be respectful and supportive of others</li>
