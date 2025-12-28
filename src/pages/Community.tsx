@@ -319,29 +319,57 @@ export const Community = () => {
   };
 
   const likePost = async (postId: string) => {
+    // 1. Optimistic Update
+    const isLiked = likedPosts.has(postId);
+    const newLikedPosts = new Set(likedPosts);
+    if (isLiked) {
+      newLikedPosts.delete(postId);
+    } else {
+      newLikedPosts.add(postId);
+    }
+    setLikedPosts(newLikedPosts);
+
+    const prevPosts = [...posts]; // Backup for rollback
+    setPosts(
+      posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              likes: post.likes + (isLiked ? -1 : 1),
+              likedBy: isLiked
+                ? post.likedBy?.filter((id) => id !== user?.id)
+                : [...(post.likedBy || []), user?.id || ""],
+            }
+          : post
+      )
+    );
+
     try {
       const response = await communityApi.likePost(postId);
       const { liked, data } = response;
 
-      // Update local state based on server response
-      const newLikedPosts = new Set(likedPosts);
-      if (liked) {
-        newLikedPosts.add(postId);
-      } else {
-        newLikedPosts.delete(postId);
-      }
-      setLikedPosts(newLikedPosts);
-
-      // Update post with new data from server
-      setPosts(
-        posts.map((post) =>
+      // 2. Sync with Server (Optional, but ensures consistency)
+      // The server response returns the definitive state
+      setPosts((currentPosts) =>
+        currentPosts.map((post) =>
           post.id === postId
             ? { ...post, likes: data.likes, likedBy: data.likedBy }
             : post
         )
       );
+
+      // Sync liked set as well just in case
+      setLikedPosts((prev) => {
+        const updated = new Set(prev);
+        if (liked) updated.add(postId);
+        else updated.delete(postId);
+        return updated;
+      });
     } catch (error) {
       console.error("Error liking post:", error);
+      // 3. Rollback on Error
+      setLikedPosts(likedPosts);
+      setPosts(prevPosts);
     }
   };
 
@@ -475,27 +503,82 @@ export const Community = () => {
   };
 
   const likeComment = async (postId: string, commentId: string) => {
+    // 1. Optimistic Update
+    const isLiked = likedComments.has(commentId);
+    const newLikedComments = new Set(likedComments);
+    if (isLiked) {
+      newLikedComments.delete(commentId);
+    } else {
+      newLikedComments.add(commentId);
+    }
+    setLikedComments(newLikedComments);
+
+    const prevPostComments = { ...postComments }; // Backup
+
+    // Helper to calculate new likes/likedBy for optimistic update
+    const getOptimisticComment = (c: Comment) => ({
+      ...c,
+      likes: c.likes + (isLiked ? -1 : 1),
+      likedBy: isLiked
+        ? c.likedBy?.filter((id) => id !== user?.id)
+        : [...(c.likedBy || []), user?.id || ""],
+    });
+
+    setPostComments((prev) => ({
+      ...prev,
+      [postId]: updateCommentTreeOptimistic(
+        prev[postId] || [],
+        commentId,
+        getOptimisticComment
+      ),
+    }));
+
     try {
       const response = await communityApi.likeComment(commentId);
       const { liked, data } = response;
 
-      // Update liked comments set
-      const newLikedComments = new Set(likedComments);
-      if (liked) {
-        newLikedComments.add(commentId);
-      } else {
-        newLikedComments.delete(commentId);
-      }
-      setLikedComments(newLikedComments);
+      // 2. Sync with Server
+      setLikedComments((prev) => {
+        const updated = new Set(prev);
+        if (liked) updated.add(commentId);
+        else updated.delete(commentId);
+        return updated;
+      });
 
-      // Update comment in tree
       setPostComments((prev) => ({
         ...prev,
         [postId]: updateCommentInTree(prev[postId] || [], commentId, data),
       }));
     } catch (error) {
       console.error("Error liking comment:", error);
+      // 3. Rollback
+      setLikedComments(likedComments);
+      setPostComments(prevPostComments);
     }
+  };
+
+  // Helper for optimistic comment update
+  const updateCommentTreeOptimistic = (
+    comments: Comment[],
+    targetId: string,
+    updateFn: (c: Comment) => Comment
+  ): Comment[] => {
+    return comments.map((comment) => {
+      if (comment._id === targetId) {
+        return updateFn(comment);
+      }
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: updateCommentTreeOptimistic(
+            comment.replies,
+            targetId,
+            updateFn
+          ),
+        };
+      }
+      return comment;
+    });
   };
 
   const updateCommentInTree = (
@@ -541,7 +624,10 @@ export const Community = () => {
           post.id === postId
             ? {
                 ...post,
-                commentCount: Math.max(0, (post.commentCount || 0) - countToDelete),
+                commentCount: Math.max(
+                  0,
+                  (post.commentCount || 0) - countToDelete
+                ),
               }
             : post
         )
@@ -850,7 +936,7 @@ export const Community = () => {
                       <span className="font-medium">
                         {postComments[post.id]
                           ? getTotalCommentCount(postComments[post.id])
-                          : (post.commentCount || 0)}
+                          : post.commentCount || 0}
                       </span>
                       {expandedComments.has(post.id) ? (
                         <ChevronUp className="h-4 w-4" />

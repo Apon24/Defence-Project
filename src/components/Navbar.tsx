@@ -25,66 +25,78 @@ import { motion, AnimatePresence } from "framer-motion";
 export const Navbar = () => {
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
-  const { language, t } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [weather, setWeather] = useState<{ temp: number; icon: string } | null>(
-    null
-  );
+  const [weather, setWeather] = useState<{
+    temp: number;
+    icon: string;
+    city: string;
+  } | null>(null);
 
-  // Fetch weather for Dhaka, Bangladesh using Open-Meteo API (free, no API key needed)
+  // Fetch weather based on current location
   useEffect(() => {
-    const fetchWeather = async () => {
+    const fetchWeather = async (lat: number, lng: number) => {
       try {
-        // Dhaka coordinates: 23.8103, 90.4125
         const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=23.8103&longitude=90.4125&current=temperature_2m,weather_code`
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code`
         );
         const data = await response.json();
 
         if (data.current) {
-          // Map weather code to icon
           const weatherCode = data.current.weather_code;
-          let icon = "01d"; // default sunny
+          let icon = "01d";
 
-          // WMO Weather codes mapping
-          if (weatherCode === 0) icon = "01d"; // Clear sky
-          else if (weatherCode <= 3) icon = "02d"; // Partly cloudy
-          else if (weatherCode <= 49) icon = "50d"; // Fog
-          else if (weatherCode <= 69) icon = "10d"; // Rain
-          else if (weatherCode <= 79) icon = "13d"; // Snow
-          else if (weatherCode <= 99) icon = "11d"; // Thunderstorm
+          if (weatherCode === 0) icon = "01d";
+          else if (weatherCode <= 3) icon = "02d";
+          else if (weatherCode <= 49) icon = "50d";
+          else if (weatherCode <= 69) icon = "10d";
+          else if (weatherCode <= 79) icon = "13d";
+          else if (weatherCode <= 99) icon = "11d";
+
+          // Get city name (reverse geocoding approx or just show "Local")
+          // For simplicity we'll show "Local" or try to get it if possible,
+          // but Open-Meteo doesn't return city name.
+          // We can just show "Local" or simplistic mapping.
 
           setWeather({
             temp: Math.round(data.current.temperature_2m),
             icon: icon,
+            city: language === "bn" ? "আপনার অবস্থান" : "Your Location",
           });
-          return;
         }
       } catch (error) {
         console.error("Error fetching weather:", error);
       }
-
-      // Fallback: estimated weather for Dhaka based on season
-      const month = new Date().getMonth();
-      let estimatedTemp = 28; // Default
-      if (month >= 11 || month <= 1) estimatedTemp = 20; // Winter
-      else if (month >= 2 && month <= 4) estimatedTemp = 32; // Summer
-      else if (month >= 5 && month <= 9) estimatedTemp = 30; // Monsoon
-
-      setWeather({
-        temp: estimatedTemp,
-        icon: "01d",
-      });
     };
 
-    fetchWeather();
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.log("Weather location access denied, defaulting to Dhaka");
+          fetchWeather(23.8103, 90.4125); // Default to Dhaka
+        }
+      );
+    } else {
+      fetchWeather(23.8103, 90.4125); // Default to Dhaka
+    }
+
     // Refresh weather every 30 minutes
-    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
+    const interval = setInterval(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (p) => fetchWeather(p.coords.latitude, p.coords.longitude),
+          () => fetchWeather(23.8103, 90.4125)
+        );
+      }
+    }, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [language]);
 
   const navCategories = [
     {
@@ -172,229 +184,264 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
-      <div className="w-11/12 mx-auto">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link
-              to="/"
-              className="flex items-center space-x-2 transition-transform duration-200 hover:scale-[1.01]"
-              onClick={handleScrollTop}>
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-green-600">
-                {t("app.name")}
-              </span>
-            </Link>
-          </div>
-
-          <div className="hidden lg:flex items-center space-x-2">
-            {navCategories.map((category) =>
-              category.type === "link" ? (
-                <Link
-                  key={category.path}
-                  to={category.path!}
-                  className={linkClass(category.path!)}
-                  onClick={handleScrollTop}>
-                  {category.label}
-                </Link>
-              ) : (
-                <NavDropdown
-                  key={category.label}
-                  label={category.label}
-                  items={category.items!}
-                  handleScrollTop={handleScrollTop}
-                />
-              )
-            )}
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Weather Display for Dhaka */}
-            {weather && (
-              <div className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white text-sm font-medium shadow-md">
-                <CloudSun className="h-4 w-4" />
-                <span>{weather.temp}°C</span>
-                <span className="text-xs opacity-80">
-                  {language === "bn" ? "ঢাকা" : "Dhaka"}
-                </span>
-              </div>
-            )}
-
+    <>
+      {/* Language Bar */}
+      <div className="bg-green-700 text-white py-1 px-4 text-xs font-medium">
+        <div className="w-11/12 mx-auto flex justify-between items-center">
+          <span>
+            {language === "bn"
+              ? "বাংলাদেশে পরিবেশ সচেতনতা বৃদ্ধি"
+              : "Promoting Environmental Awareness in Bangladesh"}
+          </span>
+          <div className="flex gap-2">
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-              {isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
+              onClick={() => setLanguage("bn")}
+              className={`px-2 py-0.5 rounded ${
+                language === "bn"
+                  ? "bg-white text-green-700"
+                  : "hover:bg-green-600"
+              }`}>
+              বাংলা
             </button>
-
-            {user ? (
-              <div className="hidden lg:flex items-center space-x-2">
-                <UserMenu isAdmin={isAdmin} handleScrollTop={handleScrollTop} />
-              </div>
-            ) : (
-              <div className="hidden lg:flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-all hover:shadow-lg"
-                  onClick={handleScrollTop}>
-                  <LogIn className="h-4 w-4" />
-                  <span>{t("nav.login")}</span>
-                </Link>
-                <Link
-                  to="/login"
-                  className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 transition-all"
-                  onClick={() => {
-                    localStorage.setItem("authMode", "signup");
-                    handleScrollTop();
-                  }}>
-                  <UserPlus className="h-4 w-4" />
-                  <span>{t("nav.signup")}</span>
-                </Link>
-              </div>
-            )}
-
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              onClick={() => setLanguage("en")}
+              className={`px-2 py-0.5 rounded ${
+                language === "en"
+                  ? "bg-white text-green-700"
+                  : "hover:bg-green-600"
+              }`}>
+              English
             </button>
           </div>
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden overflow-hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+      <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div className="w-11/12 mx-auto">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link
+                to="/"
+                className="flex items-center space-x-2 transition-transform duration-200 hover:scale-[1.01]"
+                onClick={handleScrollTop}>
+                <Leaf className="h-8 w-8 text-green-600" />
+                <span className="text-xl font-bold text-green-600">
+                  {t("app.name")}
+                </span>
+              </Link>
+            </div>
+
+            <div className="hidden lg:flex items-center space-x-2">
               {navCategories.map((category) =>
                 category.type === "link" ? (
                   <Link
                     key={category.path}
                     to={category.path!}
-                    className={mobileLinkClass(category.path!)}
-                    onClick={() => {
-                      handleScrollTop();
-                      setMobileMenuOpen(false);
-                    }}>
+                    className={linkClass(category.path!)}
+                    onClick={handleScrollTop}>
                     {category.label}
                   </Link>
                 ) : (
-                  <div key={category.label} className="space-y-1">
-                    <button
-                      onClick={() => toggleCategory(category.label)}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <span>{category.label}</span>
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform duration-200 ${
-                          expandedCategory === category.label
-                            ? "rotate-180"
-                            : ""
-                        }`}
-                      />
-                    </button>
-                    <AnimatePresence>
-                      {expandedCategory === category.label && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="pl-4 space-y-1 overflow-hidden">
-                          {category.items?.map((item) => (
-                            <Link
-                              key={item.path}
-                              to={item.path}
-                              className={mobileLinkClass(item.path)}
-                              onClick={() => {
-                                handleScrollTop();
-                                setMobileMenuOpen(false);
-                              }}>
-                              {item.name}
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  <NavDropdown
+                    key={category.label}
+                    label={category.label}
+                    items={category.items!}
+                    handleScrollTop={handleScrollTop}
+                  />
                 )
               )}
+            </div>
 
-              <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                {user ? (
-                  <>
-                    {isAdmin && (
+            <div className="flex items-center space-x-3">
+              {/* Weather Display */}
+              {weather && (
+                <div className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white text-sm font-medium shadow-md">
+                  <CloudSun className="h-4 w-4" />
+                  <span>{weather.temp}°C</span>
+                  <span className="text-xs opacity-80">{weather.city}</span>
+                </div>
+              )}
+
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                {isDark ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </button>
+
+              {user ? (
+                <div className="hidden lg:flex items-center space-x-2">
+                  <UserMenu
+                    isAdmin={isAdmin}
+                    handleScrollTop={handleScrollTop}
+                  />
+                </div>
+              ) : (
+                <div className="hidden lg:flex items-center space-x-2">
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-all hover:shadow-lg"
+                    onClick={handleScrollTop}>
+                    <LogIn className="h-4 w-4" />
+                    <span>{t("nav.login")}</span>
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-1 px-4 py-2 rounded-md text-sm font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 transition-all"
+                    onClick={() => {
+                      localStorage.setItem("authMode", "signup");
+                      handleScrollTop();
+                    }}>
+                    <UserPlus className="h-4 w-4" />
+                    <span>{t("nav.signup")}</span>
+                  </Link>
+                </div>
+              )}
+
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="lg:hidden overflow-hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+              {/* Mobile menu content omitted for brevity but logic remains same, just wrapping */}
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                {navCategories.map((category) =>
+                  category.type === "link" ? (
+                    <Link
+                      key={category.path}
+                      to={category.path!}
+                      className={mobileLinkClass(category.path!)}
+                      onClick={() => {
+                        handleScrollTop();
+                        setMobileMenuOpen(false);
+                      }}>
+                      {category.label}
+                    </Link>
+                  ) : (
+                    <div key={category.label} className="space-y-1">
+                      <button
+                        onClick={() => toggleCategory(category.label)}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span>{category.label}</span>
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-200 ${
+                            expandedCategory === category.label
+                              ? "rotate-180"
+                              : ""
+                          }`}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {expandedCategory === category.label && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="pl-4 space-y-1 overflow-hidden">
+                            {category.items?.map((item) => (
+                              <Link
+                                key={item.path}
+                                to={item.path}
+                                className={mobileLinkClass(item.path)}
+                                onClick={() => {
+                                  handleScrollTop();
+                                  setMobileMenuOpen(false);
+                                }}>
+                                {item.name}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                )}
+
+                <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                  {user ? (
+                    <>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+                          onClick={() => {
+                            handleScrollTop();
+                            setMobileMenuOpen(false);
+                          }}>
+                          <Shield className="h-5 w-5" />
+                          <span>{t("nav.admin")}</span>
+                        </Link>
+                      )}
                       <Link
-                        to="/admin"
-                        className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-emerald-600 hover:bg-emerald-700"
+                        to="/profile"
+                        className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
                         onClick={() => {
                           handleScrollTop();
                           setMobileMenuOpen(false);
                         }}>
-                        <Shield className="h-5 w-5" />
-                        <span>{t("nav.admin")}</span>
+                        <User className="h-5 w-5" />
+                        <span>{t("nav.profile")}</span>
                       </Link>
-                    )}
-                    <Link
-                      to="/profile"
-                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                      onClick={() => {
-                        handleScrollTop();
-                        setMobileMenuOpen(false);
-                      }}>
-                      <User className="h-5 w-5" />
-                      <span>{t("nav.profile")}</span>
-                    </Link>
-                    <button
-                      onClick={() => {
-                        signOut();
-                        handleScrollTop();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700">
-                      <LogOut className="h-5 w-5" />
-                      <span>{t("nav.logout")}</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-md text-base font-medium bg-green-600 text-white hover:bg-green-700"
-                      onClick={() => {
-                        handleScrollTop();
-                        setMobileMenuOpen(false);
-                      }}>
-                      <LogIn className="h-5 w-5" />
-                      <span>{t("nav.login")}</span>
-                    </Link>
-                    <Link
-                      to="/login"
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-md text-base font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900"
-                      onClick={() => {
-                        localStorage.setItem("authMode", "signup");
-                        handleScrollTop();
-                        setMobileMenuOpen(false);
-                      }}>
-                      <UserPlus className="h-5 w-5" />
-                      <span>{t("nav.signup")}</span>
-                    </Link>
-                  </>
-                )}
+                      <button
+                        onClick={() => {
+                          signOut();
+                          handleScrollTop();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700">
+                        <LogOut className="h-5 w-5" />
+                        <span>{t("nav.logout")}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-md text-base font-medium bg-green-600 text-white hover:bg-green-700"
+                        onClick={() => {
+                          handleScrollTop();
+                          setMobileMenuOpen(false);
+                        }}>
+                        <LogIn className="h-5 w-5" />
+                        <span>{t("nav.login")}</span>
+                      </Link>
+                      <Link
+                        to="/login"
+                        className="w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-md text-base font-medium border-2 border-green-600 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900"
+                        onClick={() => {
+                          localStorage.setItem("authMode", "signup");
+                          handleScrollTop();
+                          setMobileMenuOpen(false);
+                        }}>
+                        <UserPlus className="h-5 w-5" />
+                        <span>{t("nav.signup")}</span>
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+    </>
   );
 };

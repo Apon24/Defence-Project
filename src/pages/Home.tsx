@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Leaf,
   Calculator,
@@ -19,6 +20,28 @@ import { useLanguage } from "../contexts/LanguageContext";
 
 export const Home = () => {
   const { t, language } = useLanguage();
+  const [impactStats, setImpactStats] = useState({
+    users: 0,
+    trees: 0,
+    co2Saved: 0,
+    challenges: 0,
+  });
+
+  useEffect(() => {
+    const fetchImpactStats = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/impact");
+        if (response.ok) {
+          const data = await response.json();
+          setImpactStats(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch impact stats:", error);
+      }
+    };
+
+    fetchImpactStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -127,7 +150,9 @@ export const Home = () => {
               <div className="bg-green-500 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <TreePine className="h-7 w-7 text-white" />
               </div>
-              <p className="text-4xl font-bold text-white mb-2">১০,০০০+</p>
+              <p className="text-4xl font-bold text-white mb-2">
+                {impactStats.trees.toLocaleString()}+
+              </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.trees")}
               </p>
@@ -137,7 +162,9 @@ export const Home = () => {
               <div className="bg-blue-500 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Recycle className="h-7 w-7 text-white" />
               </div>
-              <p className="text-4xl font-bold text-white mb-2">৫০,০০০+</p>
+              <p className="text-4xl font-bold text-white mb-2">
+                {impactStats.co2Saved.toLocaleString()}kg+
+              </p>
               <p className="text-emerald-200 text-sm">{t("home.impact.co2")}</p>
             </div>
 
@@ -145,7 +172,9 @@ export const Home = () => {
               <div className="bg-yellow-500 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Users className="h-7 w-7 text-white" />
               </div>
-              <p className="text-4xl font-bold text-white mb-2">৫,০০০+</p>
+              <p className="text-4xl font-bold text-white mb-2">
+                {impactStats.users.toLocaleString()}+
+              </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.members")}
               </p>
@@ -155,7 +184,9 @@ export const Home = () => {
               <div className="bg-red-500 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Target className="h-7 w-7 text-white" />
               </div>
-              <p className="text-4xl font-bold text-white mb-2">২৫,০০০+</p>
+              <p className="text-4xl font-bold text-white mb-2">
+                {impactStats.challenges.toLocaleString()}+
+              </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.challenges")}
               </p>

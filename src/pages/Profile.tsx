@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { profileApi, badgesApi } from "../lib/api";
 import { useNotification } from "../contexts/NotificationContext";
-import { User, Mail, Award, Save } from "lucide-react";
+import { User, Mail, Award, Save, Camera } from "lucide-react";
 
 interface Profile {
   fullName: string;
@@ -28,6 +28,9 @@ export const Profile = () => {
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [profile, setProfile] = useState<Profile>({
     fullName: "",
     email: "",
@@ -78,6 +81,34 @@ export const Profile = () => {
     }
   };
 
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate absolute basic constraints
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification("error", "File size too large (max 5MB)");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await profileApi.uploadAvatar(file);
+      setProfile((prev) => ({
+        ...prev,
+        avatarUrl: `http://localhost:5000${response.data.avatarUrl}`,
+      }));
+      showNotification("success", "Profile photo uploaded!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      showNotification("error", "Failed to upload profile photo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
@@ -113,8 +144,34 @@ export const Profile = () => {
       <div className="max-w-4xl mx-auto animate-fade-in-slow">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div className="flex items-center mb-8">
-            <div className="bg-green-100 dark:bg-green-900 p-4 rounded-full mr-4">
-              <User className="h-12 w-12 text-green-600 dark:text-green-400" />
+            <div
+              className="relative group cursor-pointer mr-4"
+              onClick={() => fileInputRef.current?.click()}>
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-green-100 dark:border-green-900 bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                {profile.avatarUrl ? (
+                  <img
+                    src={profile.avatarUrl}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="h-12 w-12 text-green-600 dark:text-green-400" />
+                )}
+              </div>
+              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                {uploading ? (
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Camera className="h-8 w-8 text-white" />
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
@@ -158,21 +215,6 @@ export const Profile = () => {
                     ? "আপনার পুরো নাম লিখুন"
                     : "Enter your full name"
                 }
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {language === "bn" ? "অ্যাভাটার URL" : "Avatar URL"}
-              </label>
-              <input
-                type="url"
-                value={profile.avatarUrl}
-                onChange={(e) =>
-                  setProfile({ ...profile, avatarUrl: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-green-500"
-                placeholder="https://example.com/avatar.jpg"
               />
             </div>
 

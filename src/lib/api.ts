@@ -114,6 +114,30 @@ export const profileApi = {
       body: JSON.stringify(data),
     });
   },
+
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const token = getAuthToken();
+    const headers: HeadersInit = {};
+
+    if (token) {
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/profile/upload-avatar`, {
+      method: "POST",
+      body: formData,
+      headers,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to upload avatar");
+    }
+    return data;
+  },
 };
 
 // Carbon Footprint API

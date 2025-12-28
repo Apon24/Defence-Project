@@ -11,43 +11,51 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-interface FormData {
-  electricityKwh: string;
-  transportKm: string;
-  transportType: string;
-  wasteKg: string;
-}
-
 export const Calculator = () => {
   const { user } = useAuth();
   const { t, language } = useLanguage();
-  const [formData, setFormData] = useState<FormData>({
-    electricityKwh: "",
-    transportKm: "",
-    transportType: "car",
-    wasteKg: "",
-  });
+  const [electricityKwh, setElectricityKwh] = useState("");
+  const [wasteKg, setWasteKg] = useState("");
+  const [transportEntries, setTransportEntries] = useState<
+    Array<{ id: number; type: string; km: string }>
+  >([{ id: Date.now(), type: "car", km: "" }]);
+
   const [result, setResult] = useState<{
     totalCO2: number;
     category: string;
     breakdown: { electricity: number; transport: number; waste: number };
   } | null>(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  const addTransportRow = () => {
+    setTransportEntries([
+      ...transportEntries,
+      { id: Date.now(), type: "car", km: "" },
+    ]);
+  };
+
+  const removeTransportRow = (id: number) => {
+    if (transportEntries.length > 1) {
+      setTransportEntries(transportEntries.filter((entry) => entry.id !== id));
+    }
+  };
+
+  const updateTransportEntry = (
+    id: number,
+    field: "type" | "km",
+    value: string
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setTransportEntries(
+      transportEntries.map((entry) =>
+        entry.id === id ? { ...entry, [field]: value } : entry
+      )
+    );
   };
 
   const calculateCarbonFootprint = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const electricity = parseFloat(formData.electricityKwh) || 0;
-    const transport = parseFloat(formData.transportKm) || 0;
-    const waste = parseFloat(formData.wasteKg) || 0;
+    const electricity = parseFloat(electricityKwh) || 0;
+    const waste = parseFloat(wasteKg) || 0;
 
     const transportEmissionFactors: Record<string, number> = {
       car: 0.21,
@@ -57,12 +65,19 @@ export const Calculator = () => {
       bicycle: 0,
     };
 
+    let totalTransportCO2 = 0;
+    let totalTransportKm = 0;
+
+    transportEntries.forEach((entry) => {
+      const km = parseFloat(entry.km) || 0;
+      totalTransportKm += km;
+      totalTransportCO2 += km * (transportEmissionFactors[entry.type] || 0.21);
+    });
+
     const electricityCO2 = electricity * 0.82;
-    const transportCO2 =
-      transport * (transportEmissionFactors[formData.transportType] || 0.21);
     const wasteCO2 = waste * 0.5;
 
-    const totalCO2 = electricityCO2 + transportCO2 + wasteCO2;
+    const totalCO2 = electricityCO2 + totalTransportCO2 + wasteCO2;
 
     let category = "Low";
     if (totalCO2 > 100) category = "High";
@@ -73,7 +88,7 @@ export const Calculator = () => {
       category,
       breakdown: {
         electricity: parseFloat(electricityCO2.toFixed(2)),
-        transport: parseFloat(transportCO2.toFixed(2)),
+        transport: parseFloat(totalTransportCO2.toFixed(2)),
         waste: parseFloat(wasteCO2.toFixed(2)),
       },
     });
@@ -82,8 +97,9 @@ export const Calculator = () => {
       try {
         await carbonApi.create({
           electricityKwh: electricity,
-          transportationKm: transport,
-          transportationType: formData.transportType,
+          transportationKm: totalTransportKm,
+          transportationType:
+            transportEntries.length === 1 ? transportEntries[0].type : "mixed",
           wasteKg: waste,
           totalCo2Kg: totalCO2,
           category,
@@ -136,9 +152,8 @@ export const Calculator = () => {
                 </label>
                 <input
                   type="number"
-                  name="electricityKwh"
-                  value={formData.electricityKwh}
-                  onChange={handleChange}
+                  value={electricityKwh}
+                  onChange={(e) => setElectricityKwh(e.target.value)}
                   step="0.1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                   placeholder={language === "bn" ? "যেমন: ১০" : "e.g., 10"}
@@ -156,47 +171,81 @@ export const Calculator = () => {
                   <Car className="h-5 w-5 mr-2 text-blue-500" />
                   {t("calculator.transport")}
                 </label>
-                <input
-                  type="number"
-                  name="transportKm"
-                  value={formData.transportKm}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-                  placeholder={language === "bn" ? "যেমন: ২০" : "e.g., 20"}
-                  required
-                />
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t("calculator.transportType")}
-                </label>
-                <select
-                  name="transportType"
-                  value={formData.transportType}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white">
-                  <option value="car">
-                    {language === "bn" ? "ব্যক্তিগত গাড়ি" : "Private Car"}
-                  </option>
-                  <option value="motorcycle">
-                    {language === "bn" ? "মোটরসাইকেল" : "Motorcycle"}
-                  </option>
-                  <option value="bus">
-                    {language === "bn"
-                      ? "বাস/পাবলিক ট্রান্সপোর্ট"
-                      : "Bus/Public Transport"}
-                  </option>
-                  <option value="rickshaw">
-                    {language === "bn"
-                      ? "রিকশা (ইলেকট্রিক/ম্যানুয়াল)"
-                      : "Rickshaw (Electric/Manual)"}
-                  </option>
-                  <option value="bicycle">
-                    {language === "bn" ? "সাইকেল/হাঁটা" : "Bicycle/Walking"}
-                  </option>
-                </select>
+                <div className="space-y-3">
+                  {transportEntries.map((entry) => (
+                    <div key={entry.id} className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <select
+                          value={entry.type}
+                          onChange={(e) =>
+                            updateTransportEntry(
+                              entry.id,
+                              "type",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white mb-2">
+                          <option value="car">
+                            {language === "bn"
+                              ? "ব্যক্তিগত গাড়ি"
+                              : "Private Car"}
+                          </option>
+                          <option value="motorcycle">
+                            {language === "bn" ? "মোটরসাইকেল" : "Motorcycle"}
+                          </option>
+                          <option value="bus">
+                            {language === "bn"
+                              ? "বাস/পাবলিক ট্রান্সপোর্ট"
+                              : "Bus/Public Transport"}
+                          </option>
+                          <option value="rickshaw">
+                            {language === "bn"
+                              ? "রিকশা (ইলেকট্রিক/ম্যানুয়াল)"
+                              : "Rickshaw (Electric/Manual)"}
+                          </option>
+                          <option value="bicycle">
+                            {language === "bn"
+                              ? "সাইকেল/হাঁটা"
+                              : "Bicycle/Walking"}
+                          </option>
+                        </select>
+                        <input
+                          type="number"
+                          value={entry.km}
+                          onChange={(e) =>
+                            updateTransportEntry(entry.id, "km", e.target.value)
+                          }
+                          step="0.1"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
+                          placeholder={
+                            language === "bn" ? "কত কিমি?" : "Distance (km)"
+                          }
+                          required
+                        />
+                      </div>
+                      {transportEntries.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeTransportRow(entry.id)}
+                          className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="Remove">
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addTransportRow}
+                  className="mt-3 text-sm text-green-600 dark:text-green-400 font-medium hover:underline flex items-center">
+                  +{" "}
+                  {language === "bn"
+                    ? "আরেকটি মাধ্যম যোগ করুন"
+                    : "Add another transport"}
+                </button>
               </div>
 
               <div>
@@ -206,9 +255,8 @@ export const Calculator = () => {
                 </label>
                 <input
                   type="number"
-                  name="wasteKg"
-                  value={formData.wasteKg}
-                  onChange={handleChange}
+                  value={wasteKg}
+                  onChange={(e) => setWasteKg(e.target.value)}
                   step="0.1"
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
                   placeholder={language === "bn" ? "যেমন: ২" : "e.g., 2"}

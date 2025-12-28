@@ -506,86 +506,104 @@ export const Dashboard = () => {
               </h2>
             </div>
             {weeklyProgressData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                {activeChart === "area" ? (
-                  <AreaChart data={weeklyProgressData}>
-                    <defs>
-                      <linearGradient id="colorCo2" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                          offset="5%"
-                          stopColor="#10b981"
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#10b981"
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(255,255,255,0.95)",
-                        borderRadius: "12px",
-                        border: "none",
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="co2"
-                      stroke="#10b981"
-                      fillOpacity={1}
-                      fill="url(#colorCo2)"
-                      name="CO₂ (kg)"
-                    />
-                  </AreaChart>
-                ) : activeChart === "line" ? (
-                  <LineChart data={weeklyProgressData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="co2"
-                      stroke="#10b981"
-                      strokeWidth={3}
-                      dot={{ fill: "#10b981", strokeWidth: 2 }}
-                      name="CO₂ (kg)"
-                    />
-                  </LineChart>
-                ) : (
-                  <ComposedChart data={weeklyProgressData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar
-                      dataKey="electricity"
-                      fill="#3b82f6"
-                      name={language === "bn" ? "বিদ্যুৎ" : "Electricity"}
-                    />
-                    <Bar
-                      dataKey="transport"
-                      fill="#f59e0b"
-                      name={language === "bn" ? "যানবাহন" : "Transport"}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="co2"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      name="CO₂"
-                    />
-                  </ComposedChart>
-                )}
-              </ResponsiveContainer>
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  {activeChart === "area" ? (
+                    <AreaChart data={weeklyProgressData}>
+                      <defs>
+                        <linearGradient
+                          id="colorCo2"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1">
+                          <stop
+                            offset="5%"
+                            stopColor="#10b981"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#10b981"
+                            stopOpacity={0.1}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="name" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(255,255,255,0.95)",
+                          borderRadius: "12px",
+                          border: "none",
+                          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="co2"
+                        stroke="#10b981"
+                        fillOpacity={1}
+                        fill="url(#colorCo2)"
+                        name="CO₂ (kg)"
+                      />
+                    </AreaChart>
+                  ) : activeChart === "line" ? (
+                    <LineChart data={weeklyProgressData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="name" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="co2"
+                        stroke="#10b981"
+                        strokeWidth={3}
+                        dot={{ fill: "#10b981", strokeWidth: 2 }}
+                        name="CO₂ (kg)"
+                      />
+                    </LineChart>
+                  ) : (
+                    <ComposedChart data={weeklyProgressData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="name" stroke="#6b7280" />
+                      <YAxis stroke="#6b7280" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar
+                        dataKey="electricity"
+                        fill="#3b82f6"
+                        name={language === "bn" ? "বিদ্যুৎ" : "Electricity"}
+                      />
+                      <Bar
+                        dataKey="transport"
+                        fill="#f59e0b"
+                        name={language === "bn" ? "যানবাহন" : "Transport"}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="co2"
+                        stroke="#ef4444"
+                        strokeWidth={2}
+                        name="CO₂"
+                      />
+                    </ComposedChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <Leaf className="inline h-4 w-4 mr-2 text-green-600" />
+                    <span className="font-medium">
+                      {language === "bn" ? "বিশ্লেষণ: " : "Insight: "}
+                    </span>
+                    {language === "bn"
+                      ? "আপনার কার্বন ফুটপ্রিন্ট গত সপ্তাহের তুলনায় কমছে। এইভাবে চালিয়ে যান!"
+                      : "Your carbon footprint is trending lower compared to last week. Keep it up!"}
+                  </p>
+                </div>
+              </>
             ) : (
               <div className="h-[300px] flex flex-col items-center justify-center text-gray-500">
                 <Leaf className="h-12 w-12 text-gray-300 mb-3" />
@@ -611,37 +629,59 @@ export const Dashboard = () => {
               </h2>
             </div>
             {quizTrendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={quizTrendData}>
-                  <defs>
-                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
-                      <stop
-                        offset="95%"
-                        stopColor="#8b5cf6"
-                        stopOpacity={0.9}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="name" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" domain={[0, 100]} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(255,255,255,0.95)",
-                      borderRadius: "12px",
-                      border: "none",
-                      boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Bar
-                    dataKey="score"
-                    fill="url(#colorScore)"
-                    radius={[8, 8, 0, 0]}
-                    name={language === "bn" ? "স্কোর %" : "Score %"}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={quizTrendData}>
+                    <defs>
+                      <linearGradient
+                        id="colorScore"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor="#3b82f6"
+                          stopOpacity={0.9}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#8b5cf6"
+                          stopOpacity={0.9}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(255,255,255,0.95)",
+                        borderRadius: "12px",
+                        border: "none",
+                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Bar
+                      dataKey="score"
+                      fill="url(#colorScore)"
+                      radius={[8, 8, 0, 0]}
+                      name={language === "bn" ? "স্কোর %" : "Score %"}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <Award className="inline h-4 w-4 mr-2 text-blue-600" />
+                    <span className="font-medium">
+                      {language === "bn" ? "বিশ্লেষণ: " : "Insight: "}
+                    </span>
+                    {language === "bn"
+                      ? "আপনার কুইজ জ্ঞান বাড়ছে। পরিবেশ সম্পর্কে আরও জানুন!"
+                      : "Your quiz knowledge is growing. Keep learning about the environment!"}
+                  </p>
+                </div>
+              </>
             ) : (
               <div className="h-[300px] flex flex-col items-center justify-center text-gray-500">
                 <Award className="h-12 w-12 text-gray-300 mb-3" />

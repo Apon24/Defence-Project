@@ -27,6 +27,7 @@ import {
   Locate,
 } from "lucide-react";
 import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -465,7 +466,10 @@ function UserLocationMarker({
   if (!userLocation) return null;
 
   return (
-    <Marker position={userLocation} icon={createUserLocationIcon()}>
+    <Marker
+      position={userLocation}
+      icon={createUserLocationIcon()}
+      zIndexOffset={1000}>
       <Popup>
         <div className="text-center p-2">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -495,7 +499,8 @@ interface PlantedTree {
 }
 
 export const Map = () => {
-  const { state, plantTree } = useApp();
+  const { plantTree } = useApp();
+  const { user } = useAuth();
   const { language } = useLanguage();
   const [selectedZone, setSelectedZone] = useState<EnvironmentalZone | null>(
     null
@@ -537,9 +542,10 @@ export const Map = () => {
           setUserLocation([latitude, longitude]);
           setLocationError(null);
         } else {
-          setLocationError("Your location is outside Bangladesh");
-          // Still show the location but with a warning
+          // setLocationError("Your location is outside Bangladesh");
+          // Still show the location but without blocking error
           setUserLocation([latitude, longitude]);
+          setLocationError(null);
         }
         setLocationLoading(false);
       },
@@ -641,7 +647,7 @@ export const Map = () => {
         zone: selectedZone,
         treeType: treeType,
         date: new Date().toISOString(),
-        userName: state.user?.name,
+        userName: user?.fullName,
       };
 
       setPlantedTrees((prev) => {
@@ -655,7 +661,15 @@ export const Map = () => {
 
       plantTree({
         id: newTree.id,
-        area: { name: selectedZone.name, ...selectedZone },
+        area: {
+          id: selectedZone.id,
+          name: selectedZone.name,
+          lat: selectedZone.lat,
+          lng: selectedZone.lng,
+          pollution: selectedZone.pollutionIndex.toString(),
+          population: selectedZone.population,
+          description: selectedZone.environmentalFacts[0],
+        },
         treeType: treeType,
         date: newTree.date,
         co2Absorption: treeType.co2Absorption,

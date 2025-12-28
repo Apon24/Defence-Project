@@ -1,4 +1,4 @@
-import User from '../models/User.js';
+import User from "../models/User.js";
 
 // @desc    Get user profile
 // @route   GET /api/profile
@@ -17,8 +17,8 @@ export const getProfile = async (req, res, next) => {
         avatarUrl: user.avatarUrl,
         bio: user.bio,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      }
+        updatedAt: user.updatedAt,
+      },
     });
   } catch (error) {
     next(error);
@@ -47,11 +47,40 @@ export const updateProfile = async (req, res, next) => {
         role: user.role,
         avatarUrl: user.avatarUrl,
         bio: user.bio,
-        updatedAt: user.updatedAt
-      }
+        updatedAt: user.updatedAt,
+      },
     });
   } catch (error) {
     next(error);
   }
 };
 
+// @desc    Upload user avatar
+// @route   POST /api/profile/upload-avatar
+// @access  Private
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Please upload a file" });
+    }
+
+    const avatarUrl = `/uploads/${req.file.filename}`;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatarUrl, updatedAt: new Date() },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

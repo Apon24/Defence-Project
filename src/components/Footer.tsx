@@ -44,17 +44,17 @@ export const Footer = () => {
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Mail className="h-4 w-4 text-emerald-400" />
                 <a
-                  href="mailto:info@ecotrackbd.org"
+                  href="mailto:support@ecotrackbd.com"
                   className="hover:text-emerald-400 transition-colors">
-                  info@ecotrackbd.org
+                  support@ecotrackbd.com
                 </a>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Phone className="h-4 w-4 text-emerald-400" />
                 <a
-                  href="tel:+8801234567890"
+                  href="tel:+8801700000000"
                   className="hover:text-emerald-400 transition-colors">
-                  +880 1234-567890
+                  +880 1700-000000
                 </a>
               </div>
               <div className="flex items-start space-x-2 text-sm text-gray-300">
