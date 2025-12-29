@@ -28,7 +28,7 @@ export const getPosts = async (req, res, next) => {
     const transformedPosts = posts.map((post) => ({
       id: post._id,
       content: post.content,
-      likes: post.likes,
+      likes: (post.likedBy && post.likedBy.length) || 0,
       likedBy: post.likedBy || [],
       commentCount: commentCountMap[post._id.toString()] || 0,
       created_at: post.createdAt,
@@ -71,7 +71,7 @@ export const createPost = async (req, res, next) => {
       data: {
         id: populatedPost._id,
         content: populatedPost.content,
-        likes: populatedPost.likes,
+        likes: (populatedPost.likedBy && populatedPost.likedBy.length) || 0,
         created_at: populatedPost.createdAt,
         user_id: populatedPost.userId._id,
         profiles: {
@@ -125,13 +125,16 @@ export const likePost = async (req, res, next) => {
       ).populate("userId", "fullName email");
     }
 
+    // Ensure likes count matches likedBy array length
+    const correctLikeCount = updatedPost.likedBy ? updatedPost.likedBy.length : 0;
+    
     res.json({
       success: true,
       liked: !hasLiked,
       data: {
         id: updatedPost._id,
         content: updatedPost.content,
-        likes: updatedPost.likes,
+        likes: correctLikeCount,
         likedBy: updatedPost.likedBy || [],
         created_at: updatedPost.createdAt,
         user_id: updatedPost.userId._id,
@@ -196,10 +199,12 @@ export const getComments = async (req, res, next) => {
     const commentMap = new Map();
     const rootComments = [];
 
-    // First pass: create map of all comments
+    // First pass: create map of all comments with correct likes count
     comments.forEach((comment) => {
+      const commentObj = comment.toObject();
+      commentObj.likes = (comment.likedBy && comment.likedBy.length) || 0;
       commentMap.set(comment._id.toString(), {
-        ...comment.toObject(),
+        ...commentObj,
         replies: [],
       });
     });
@@ -323,10 +328,16 @@ export const likeComment = async (req, res, next) => {
       ).populate("userId", "fullName email");
     }
 
+    // Ensure likes count matches likedBy array length
+    const correctLikeCount = updatedComment.likedBy ? updatedComment.likedBy.length : 0;
+    
     res.json({
       success: true,
       liked: !hasLiked,
-      data: updatedComment,
+      data: {
+        ...updatedComment.toObject(),
+        likes: correctLikeCount,
+      },
     });
   } catch (error) {
     next(error);
