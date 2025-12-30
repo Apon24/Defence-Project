@@ -30,7 +30,9 @@ export const Home = () => {
   useEffect(() => {
     const fetchImpactStats = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/impact");
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+        const response = await fetch(`${apiUrl}/impact`);
         if (response.ok) {
           const data = await response.json();
           setImpactStats(data);
