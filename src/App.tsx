@@ -12,6 +12,7 @@ import { AppProvider } from "./contexts/AppContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { VerifyEmail } from "./pages/VerifyEmail";
@@ -56,17 +57,66 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
-                    <Route path="/quiz" element={<Quiz />} />
-                    <Route path="/calculator" element={<Calculator />} />
+                    <Route
+                      path="/quiz"
+                      element={
+                        <ProtectedRoute>
+                          <Quiz />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/calculator"
+                      element={
+                        <ProtectedRoute>
+                          <Calculator />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/tips" element={<Tips />} />
-                    <Route path="/challenges" element={<Challenges />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/community" element={<Community />} />
+                    <Route
+                      path="/challenges"
+                      element={
+                        <ProtectedRoute>
+                          <Challenges />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/community"
+                      element={
+                        <ProtectedRoute>
+                          <Community />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/map" element={<Map />} />
-                    <Route path="/profile" element={<Profile />} />
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/admin" element={<Admin />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute requireAdmin>
+                          <Admin />
+                        </ProtectedRoute>
+                      }
+                    />
                   </Routes>
                   <Footer />
                 </div>

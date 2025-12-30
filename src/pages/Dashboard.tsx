@@ -78,12 +78,8 @@ export const Dashboard = () => {
   );
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
     loadDashboardData();
-  }, [user, navigate]);
+  }, []);
 
   const loadDashboardData = async () => {
     if (!user) return;

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
-import { profileApi, adminApi, blogApi, communityApi } from "../lib/api";
+import { adminApi, blogApi, communityApi } from "../lib/api";
 import { AdminQuizManager } from "../components/AdminQuizManager";
 import {
   LayoutDashboard,
@@ -25,10 +24,9 @@ type Tab = "overview" | "quiz" | "blog" | "challenges" | "users" | "community";
 export const Admin = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isAdmin] = useState(true);
+  const [loading] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalQuizAttempts: 0,
@@ -79,55 +77,26 @@ export const Admin = () => {
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    checkAdminAccess();
+    loadStats();
   }, [user]);
 
   useEffect(() => {
-    if (isAdmin) {
-      loadStats();
-    }
-  }, [isAdmin]);
-
-  useEffect(() => {
-    if (isAdmin && activeTab === "users") {
+    if (activeTab === "users") {
       loadUsers(usersPage);
     }
-  }, [isAdmin, activeTab, usersPage]);
+  }, [activeTab, usersPage]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === "community") {
+    if (activeTab === "community") {
       loadCommunityPosts();
     }
-  }, [isAdmin, activeTab]);
+  }, [activeTab]);
 
   useEffect(() => {
-    if (isAdmin && activeTab === "blog") {
+    if (activeTab === "blog") {
       loadBlogPosts();
     }
-  }, [isAdmin, activeTab]);
-
-  const checkAdminAccess = async () => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const profile = await profileApi.getProfile();
-
-      if (profile?.role !== "admin") {
-        navigate("/dashboard");
-        return;
-      }
-
-      setIsAdmin(true);
-    } catch (error) {
-      console.error("Error checking admin access:", error);
-      navigate("/dashboard");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [activeTab]);
 
   const loadStats = async () => {
     try {

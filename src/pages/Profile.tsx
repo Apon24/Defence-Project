@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useNavigate } from "react-router-dom";
 import { profileApi, badgesApi } from "../lib/api";
 import { useNotification } from "../contexts/NotificationContext";
 import { User, Mail, Award, Save, Camera } from "lucide-react";
@@ -23,8 +22,7 @@ interface Badge {
 
 export const Profile = () => {
   const { user } = useAuth();
-  const { language, t } = useLanguage();
-  const navigate = useNavigate();
+  const { language } = useLanguage();
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,13 +38,9 @@ export const Profile = () => {
   const [badges, setBadges] = useState<Badge[]>([]);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
     loadProfile();
     loadBadges();
-  }, [user, navigate]);
+  }, [user]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -98,7 +92,7 @@ export const Profile = () => {
       const response = await profileApi.uploadAvatar(file);
       setProfile((prev) => ({
         ...prev,
-        avatarUrl: `http://localhost:5000${response.data.avatarUrl}`,
+        avatarUrl: `http://localhost:3000${response.data.avatarUrl}`,
       }));
       showNotification("success", "Profile photo uploaded!");
     } catch (error) {
