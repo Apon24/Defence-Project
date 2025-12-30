@@ -30,7 +30,7 @@ export const Home = () => {
   useEffect(() => {
     const fetchImpactStats = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/impact");
+        const response = await fetch("http://localhost:3000/api/impact");
         if (response.ok) {
           const data = await response.json();
           setImpactStats(data);
