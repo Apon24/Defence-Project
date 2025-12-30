@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
-import { adminApi, blogApi, communityApi } from "../lib/api";
+import { adminApi, blogApi } from "../lib/api";
 import { AdminQuizManager } from "../components/AdminQuizManager";
 import {
   LayoutDashboard,
@@ -13,9 +13,7 @@ import {
   BarChart3,
   Settings,
   Shield,
-  MessageSquare,
   Trash2,
-  Heart,
   Lock,
   ChevronRight,
   Eye,
@@ -26,7 +24,7 @@ import {
 import { useNotification } from "../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
 
-type Tab = "overview" | "quiz" | "blog" | "challenges" | "users" | "community";
+type Tab = "overview" | "quiz" | "blog" | "challenges" | "users";
 
 export const Admin = () => {
   const { user, signIn } = useAuth();
@@ -77,22 +75,6 @@ export const Admin = () => {
   });
   const [creatingUser, setCreatingUser] = useState(false);
 
-  // Community State
-  const [communityPosts, setCommunityPosts] = useState<
-    Array<{
-      id: string;
-      content: string;
-      likes: number;
-      created_at: string;
-      user_id: string;
-      profiles: {
-        full_name: string;
-        email: string;
-      };
-    }>
-  >([]);
-  const [communityLoading, setCommunityLoading] = useState(false);
-
   // Blog State
   const [blogPosts, setBlogPosts] = useState<
     Array<{
@@ -122,12 +104,6 @@ export const Admin = () => {
   }, [activeTab, usersPage, user]);
 
   useEffect(() => {
-    if (user?.role === "admin" && activeTab === "community") {
-      loadCommunityPosts();
-    }
-  }, [activeTab, user]);
-
-  useEffect(() => {
     if (user?.role === "admin" && activeTab === "blog") {
       loadBlogPosts();
     }
@@ -143,7 +119,6 @@ export const Admin = () => {
         "success",
         language === "bn" ? "স্বাগতম অ্যাডমিন" : "Welcome Admin"
       );
-      // Determine if we need to reload purely based on state change
     } catch (error: any) {
       console.error("Admin login error:", error);
       showNotification(
@@ -218,38 +193,6 @@ export const Admin = () => {
     } catch (error) {
       console.error("Error updating user role:", error);
       showNotification("error", "Failed to update user role");
-    }
-  };
-
-  const loadCommunityPosts = async () => {
-    try {
-      setCommunityLoading(true);
-      const response = await communityApi.getPosts();
-      setCommunityPosts(response.data || []);
-    } catch (error) {
-      console.error("Error loading community posts:", error);
-      showNotification("error", "Failed to load community posts");
-    } finally {
-      setCommunityLoading(false);
-    }
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this post? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await communityApi.deletePost(postId);
-      setCommunityPosts((prev) => prev.filter((post) => post.id !== postId));
-      showNotification("success", "Post deleted successfully");
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      showNotification("error", "Failed to delete post");
     }
   };
 
@@ -426,11 +369,6 @@ export const Admin = () => {
       icon: FileText,
     },
     {
-      id: "community" as Tab,
-      label: language === "bn" ? "কমিউনিটি" : "Community",
-      icon: MessageSquare,
-    },
-    {
       id: "challenges" as Tab,
       label: language === "bn" ? "চ্যালেঞ্জ" : "Challenges",
       icon: Target,
@@ -477,12 +415,6 @@ export const Admin = () => {
           {/* Logout Button */}
           <button
             onClick={async () => {
-              // We don't have a direct signOut exposed from useAuth in the component in my previous edit, but it is available.
-              // But actually, we need to import it properly.
-              // For now, let's refresh page or simple reload which clears context if needed or assume user wants to just logout
-              // Actually signOut IS exposed in context.
-              // I will access it from context.
-              // Wait, I destructured only user and signIn above. Let me fix that.
               window.location.href = "/";
             }}
             className="self-start md:self-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium text-sm flex items-center gap-2">
@@ -743,83 +675,6 @@ export const Admin = () => {
               </div>
             )}
 
-            {activeTab === "community" && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                    {language === "bn"
-                      ? "কমিউনিটি পোস্ট ব্যবস্থাপনা"
-                      : "Community Posts Management"}
-                  </h2>
-                  <button
-                    onClick={loadCommunityPosts}
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm cursor-pointer ml-auto">
-                    {language === "bn" ? "রিফ্রেশ" : "Refresh"}
-                  </button>
-                </div>
-
-                {communityLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-600"></div>
-                  </div>
-                ) : communityPosts.length === 0 ? (
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center text-gray-600 dark:text-gray-300">
-                    {language === "bn"
-                      ? "কোনো কমিউনিটি পোস্ট পাওয়া যায়নি।"
-                      : "No community posts found."}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4">
-                    {communityPosts.map((post) => (
-                      <div
-                        key={post.id}
-                        className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
-                              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center">
-                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                  {post.profiles.full_name
-                                    .charAt(0)
-                                    .toUpperCase()}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-800 dark:text-white">
-                                  {post.profiles.full_name}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {post.profiles.email}
-                                </p>
-                              </div>
-                            </div>
-                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-3 pl-13">
-                              {post.content}
-                            </p>
-                            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 pl-13">
-                              <div className="flex items-center space-x-1">
-                                <Heart className="h-4 w-4" />
-                                <span>{post.likes} likes</span>
-                              </div>
-                              <span>
-                                {new Date(post.created_at).toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleDeletePost(post.id)}
-                            className="ml-4 p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer"
-                            title="Delete post">
-                            <Trash2 className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             {activeTab === "users" && (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -1050,7 +905,6 @@ export const Admin = () => {
             {activeTab !== "overview" &&
               activeTab !== "quiz" &&
               activeTab !== "users" &&
-              activeTab !== "community" &&
               activeTab !== "blog" && (
                 <div className="text-center py-12">
                   <div className="inline-block p-6 bg-gray-100 dark:bg-gray-700 rounded-full mb-6">

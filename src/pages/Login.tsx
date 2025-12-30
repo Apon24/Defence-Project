@@ -180,8 +180,10 @@ export const Login = () => {
       setShowOtpForm(true);
       showNotification("success", "OTP sent to your email");
     } catch (err: any) {
-      setErrors({ form: "Failed to send OTP. Please try again." });
-      showNotification("error", "Failed to send reset link");
+      setErrors({
+        form: err.message || "Failed to send OTP. Please try again.",
+      });
+      showNotification("error", err.message || "Failed to send reset link");
     } finally {
       setLoading(false);
     }
