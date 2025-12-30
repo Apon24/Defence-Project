@@ -24,6 +24,13 @@ const dummyUsers = [
     isVerified: true,
   },
   {
+    fullName: "Super Admin",
+    email: "paulapon2222@gmail.com",
+    password: "01876968988",
+    role: "admin",
+    isVerified: true,
+  },
+  {
     fullName: "Murad Hasan",
     email: "murad@example.com",
     password: "Password123!",

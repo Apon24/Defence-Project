@@ -1,8 +1,8 @@
-import User from '../models/User.js';
-import QuizAttempt from '../models/QuizAttempt.js';
-import BlogPost from '../models/BlogPost.js';
-import DailyChallenge from '../models/DailyChallenge.js';
-import CommunityPost from '../models/CommunityPost.js';
+import User from "../models/User.js";
+import QuizAttempt from "../models/QuizAttempt.js";
+import BlogPost from "../models/BlogPost.js";
+import DailyChallenge from "../models/DailyChallenge.js";
+import CommunityPost from "../models/CommunityPost.js";
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
@@ -10,10 +10,10 @@ import CommunityPost from '../models/CommunityPost.js';
 export const getStats = async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Admin only.',
+        message: "Access denied. Admin only.",
       });
     }
 
@@ -42,10 +42,10 @@ export const getStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error getting admin stats:', error);
+    console.error("Error getting admin stats:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching admin stats',
+      message: "Error fetching admin stats",
     });
   }
 };
@@ -61,7 +61,7 @@ export const getUsers = async (req, res) => {
 
     const [users, total] = await Promise.all([
       User.find()
-        .select('email fullName role avatarUrl createdAt')
+        .select("email fullName role avatarUrl createdAt")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
@@ -79,10 +79,61 @@ export const getUsers = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error getting users list:', error);
+    console.error("Error getting users list:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching users list',
+      message: "Error fetching users list",
+    });
+  }
+};
+
+// @desc    Create a new user (admin or regular)
+// @route   POST /api/admin/users
+// @access  Admin only
+export const createUser = async (req, res) => {
+  try {
+    const { fullName, email, password, role } = req.body;
+
+    if (!fullName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
+    }
+
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+
+    // Create user
+    const user = await User.create({
+      fullName,
+      email,
+      password,
+      role: role || "user",
+      isVerified: true, // Auto-verify admin-created users
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating user",
     });
   }
 };
@@ -94,10 +145,10 @@ export const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
 
-    if (!role || !['user', 'admin'].includes(role)) {
+    if (!role || !["user", "admin"].includes(role)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid role. Allowed values are user, admin',
+        message: "Invalid role. Allowed values are user, admin",
       });
     }
 
@@ -105,7 +156,7 @@ export const updateUserRole = async (req, res) => {
     if (req.user._id.toString() === req.params.id) {
       return res.status(400).json({
         success: false,
-        message: 'You cannot change your own role',
+        message: "You cannot change your own role",
       });
     }
 
@@ -113,12 +164,12 @@ export const updateUserRole = async (req, res) => {
       req.params.id,
       { role },
       { new: true, runValidators: true }
-    ).select('email fullName role avatarUrl createdAt');
+    ).select("email fullName role avatarUrl createdAt");
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
 
@@ -127,11 +178,10 @@ export const updateUserRole = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.error('Error updating user role:', error);
+    console.error("Error updating user role:", error);
     res.status(500).json({
       success: false,
-      message: 'Error updating user role',
+      message: "Error updating user role",
     });
   }
 };
-

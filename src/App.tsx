@@ -109,14 +109,7 @@ function App() {
                       }
                     />
                     <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute requireAdmin>
-                          <Admin />
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="/admin" element={<Admin />} />
                   </Routes>
                   <Footer />
                 </div>

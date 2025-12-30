@@ -431,6 +431,19 @@ export const adminApi = {
     });
     return response;
   },
+
+  createUser: async (data: {
+    fullName: string;
+    email: string;
+    password: string;
+    role: "user" | "admin";
+  }) => {
+    const response = await authFetch("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return response;
+  },
 };
 
 export default {
