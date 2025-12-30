@@ -1,21 +1,21 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 // Gmail SMTP configuration using App Password
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER || 'paulapon2222@gmail.com',
-    pass: process.env.EMAIL_APP_PASSWORD || 'aycv phsr xebr jipy'
-  }
+    user: process.env.EMAIL_USER || "paulapon2222@gmail.com",
+    pass: process.env.EMAIL_APP_PASSWORD || "aycv phsr xebr jipy",
+  },
 });
 
 // Email templates
 const emailTemplates = {
   accountCreated: (fullName) => ({
-    subject: '🌿 Welcome to Eco Track Bangladesh!',
+    subject: "🌿 Welcome to Eco Track Bangladesh!",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 30px; text-align: center;">
@@ -46,11 +46,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   }),
 
-  loginSuccess: (fullName, loginTime, deviceInfo = 'Unknown device') => ({
-    subject: '🔐 Successful Login to Eco Track Bangladesh',
+  loginSuccess: (fullName, loginTime, deviceInfo = "Unknown device") => ({
+    subject: "🔐 Successful Login to Eco Track Bangladesh",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 30px; text-align: center;">
@@ -86,11 +86,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   }),
 
   forgotPassword: (fullName, resetInfo) => ({
-    subject: '🔑 Password Reset Request - Eco Track Bangladesh',
+    subject: "🔑 Password Reset Request - Eco Track Bangladesh",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 30px; text-align: center;">
@@ -106,12 +106,18 @@ const emailTemplates = {
           </p>
           <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <p style="color: #666; margin-bottom: 20px;">
-              ${resetInfo || 'Your password reset request has been received. Please follow the instructions sent to you.'}
+              Please use the following 6-digit code to reset your password:
+            </p>
+            <div style="background: #e8f5e9; color: #2e7d32; padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 32px; letter-spacing: 5px; display: inline-block; border: 2px dashed #4caf50;">
+              ${resetInfo}
+            </div>
+            <p style="color: #888; font-size: 14px; margin-top: 20px;">
+              ⏳ This code will expire in 10 minutes.
             </p>
             <p style="color: #888; font-size: 14px;">
-              This request was made on ${new Date().toLocaleString('en-US', { 
-                dateStyle: 'full', 
-                timeStyle: 'short' 
+              This request was made on ${new Date().toLocaleString("en-US", {
+                dateStyle: "full",
+                timeStyle: "short",
               })}
             </p>
           </div>
@@ -127,11 +133,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   }),
 
   verificationEmail: (fullName, otpCode) => ({
-    subject: '✨ Verify Your Email - Eco Track Bangladesh',
+    subject: "✨ Verify Your Email - Eco Track Bangladesh",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 30px; text-align: center;">
@@ -162,11 +168,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   }),
 
   quizCompleted: (fullName, score, totalQuestions, badgeName = null) => ({
-    subject: '🎯 Quiz Completed - Eco Track Bangladesh',
+    subject: "🎯 Quiz Completed - Eco Track Bangladesh",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 30px; text-align: center;">
@@ -185,13 +191,17 @@ const emailTemplates = {
             <p style="color: #666; margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Score</p>
           </div>
 
-          ${badgeName ? `
+          ${
+            badgeName
+              ? `
           <div style="background: #e8f5e9; border-radius: 8px; padding: 15px; margin-top: 20px; border-left: 4px solid #4caf50;">
             <p style="color: #2e7d32; margin: 0; font-weight: bold;">
               🏆 You earned a new badge: ${badgeName}!
             </p>
           </div>
-          ` : ''}
+          `
+              : ""
+          }
           
           <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
             Keep learning and challenging yourself to become an eco-expert!
@@ -203,11 +213,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   }),
 
   badgeEarned: (fullName, badgeName, badgeDescription) => ({
-    subject: '🏆 New Badge Unlocked! - Eco Track Bangladesh',
+    subject: "🏆 New Badge Unlocked! - Eco Track Bangladesh",
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #ffd700 0%, #ffa000 100%); padding: 30px; text-align: center;">
@@ -228,7 +238,9 @@ const emailTemplates = {
           </p>
           
           <div style="text-align: center; margin-top: 30px;">
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="background: #2e7d32; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+            <a href="${
+              process.env.FRONTEND_URL || "http://localhost:5173"
+            }/dashboard" style="background: #2e7d32; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold;">
               View My Badges
             </a>
           </div>
@@ -239,72 +251,86 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
-  })
+    `,
+  }),
 };
 
 // Email sending functions
 export const sendWelcomeEmail = async (email, fullName) => {
   try {
     const template = emailTemplates.accountCreated(fullName);
-    
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Welcome email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error("Error sending welcome email:", error);
     return { success: false, error: error.message };
   }
 };
 
-export const sendLoginEmail = async (email, fullName, userAgent = 'Unknown device') => {
+export const sendLoginEmail = async (
+  email,
+  fullName,
+  userAgent = "Unknown device"
+) => {
   try {
-    const loginTime = new Date().toLocaleString('en-US', {
-      dateStyle: 'full',
-      timeStyle: 'short'
+    const loginTime = new Date().toLocaleString("en-US", {
+      dateStyle: "full",
+      timeStyle: "short",
     });
-    
-    const template = emailTemplates.loginSuccess(fullName, loginTime, userAgent);
-    
+
+    const template = emailTemplates.loginSuccess(
+      fullName,
+      loginTime,
+      userAgent
+    );
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Login notification email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending login email:', error);
+    console.error("Error sending login email:", error);
     return { success: false, error: error.message };
   }
 };
 
-export const sendForgotPasswordEmail = async (email, fullName, resetInfo = null) => {
+export const sendForgotPasswordEmail = async (email, fullName, otpCode) => {
   try {
-    const template = emailTemplates.forgotPassword(fullName, resetInfo);
-    
+    const template = emailTemplates.forgotPassword(fullName, otpCode);
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Password reset email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error("Error sending password reset email:", error);
     return { success: false, error: error.message };
   }
 };
@@ -313,10 +339,10 @@ export const sendForgotPasswordEmail = async (email, fullName, resetInfo = null)
 export const verifyEmailConnection = async () => {
   try {
     await transporter.verify();
-    console.log('Email service is ready to send messages');
+    console.log("Email service is ready to send messages");
     return true;
   } catch (error) {
-    console.error('Email service connection failed:', error);
+    console.error("Email service connection failed:", error);
     return false;
   }
 };
@@ -324,59 +350,85 @@ export const verifyEmailConnection = async () => {
 export const sendVerificationEmail = async (email, fullName, otpCode) => {
   try {
     const template = emailTemplates.verificationEmail(fullName, otpCode);
-    
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Verification email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error("Error sending verification email:", error);
     return { success: false, error: error.message };
   }
 };
 
-export const sendQuizCompletionEmail = async (email, fullName, score, totalQuestions, badgeName = null) => {
+export const sendQuizCompletionEmail = async (
+  email,
+  fullName,
+  score,
+  totalQuestions,
+  badgeName = null
+) => {
   try {
-    const template = emailTemplates.quizCompleted(fullName, score, totalQuestions, badgeName);
-    
+    const template = emailTemplates.quizCompleted(
+      fullName,
+      score,
+      totalQuestions,
+      badgeName
+    );
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Quiz completion email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending quiz completion email:', error);
+    console.error("Error sending quiz completion email:", error);
     return { success: false, error: error.message };
   }
 };
 
-export const sendBadgeEarnedEmail = async (email, fullName, badgeName, badgeDescription) => {
+export const sendBadgeEarnedEmail = async (
+  email,
+  fullName,
+  badgeName,
+  badgeDescription
+) => {
   try {
-    const template = emailTemplates.badgeEarned(fullName, badgeName, badgeDescription);
-    
+    const template = emailTemplates.badgeEarned(
+      fullName,
+      badgeName,
+      badgeDescription
+    );
+
     const mailOptions = {
-      from: `"Eco Track Bangladesh" <${process.env.EMAIL_USER || 'paulapon2222@gmail.com'}>`,
+      from: `"Eco Track Bangladesh" <${
+        process.env.EMAIL_USER || "paulapon2222@gmail.com"
+      }>`,
       to: email,
       subject: template.subject,
-      html: template.html
+      html: template.html,
     };
 
     const result = await transporter.sendMail(mailOptions);
     console.log(`Badge earned email sent to ${email}:`, result.messageId);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Error sending badge earned email:', error);
+    console.error("Error sending badge earned email:", error);
     return { success: false, error: error.message };
   }
 };
@@ -388,5 +440,5 @@ export default {
   sendVerificationEmail,
   sendQuizCompletionEmail,
   sendBadgeEarnedEmail,
-  verifyEmailConnection
+  verifyEmailConnection,
 };

@@ -29,6 +29,10 @@ export const Login = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [showOtpForm, setShowOtpForm] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const { signIn, signUp } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -173,11 +177,51 @@ export const Login = () => {
 
     try {
       await authApi.forgotPassword(email);
-      setPasswordResetSent(true);
-      showNotification("success", "Password reset link sent to your email");
+      setShowOtpForm(true);
+      showNotification("success", "OTP sent to your email");
     } catch (err: any) {
-      setErrors({ form: "Failed to send reset link. Please try again." });
+      setErrors({ form: "Failed to send OTP. Please try again." });
       showNotification("error", "Failed to send reset link");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (otp.length !== 6) {
+      setErrors({ otp: "Please enter the 6-digit OTP" });
+      return;
+    }
+
+    if (!newPassword) {
+      setErrors({ newPassword: "New password is required" });
+      return;
+    }
+
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      setErrors({ newPassword: passwordValidation.message! });
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setErrors({ confirmNewPassword: "Passwords do not match" });
+      return;
+    }
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      await authApi.resetPassword(email, otp, newPassword);
+      setPasswordResetSent(true);
+      setShowOtpForm(false);
+      showNotification("success", "Password reset successful!");
+    } catch (err: any) {
+      setErrors({ form: err.message || "Failed to reset password" });
+      showNotification("error", err.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -188,9 +232,13 @@ export const Login = () => {
     setPassword("");
     setConfirmPassword("");
     setFullName("");
+    setOtp("");
+    setNewPassword("");
+    setConfirmNewPassword("");
     setErrors({});
     setShowForgotPassword(false);
     setPasswordResetSent(false);
+    setShowOtpForm(false);
   };
 
   const toggleMode = () => {
@@ -210,11 +258,17 @@ export const Login = () => {
                 </div>
               </Link>
               <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-                {t("forgotPassword.title")}
+                {passwordResetSent
+                  ? "Password Reset Successful"
+                  : showOtpForm
+                  ? "Reset Your Password"
+                  : t("forgotPassword.title")}
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
                 {passwordResetSent
-                  ? t("forgotPassword.sent")
+                  ? "You can now login with your new password"
+                  : showOtpForm
+                  ? `Enter the 6-digit OTP sent to ${email}`
                   : t("forgotPassword.subtitle")}
               </p>
             </div>
@@ -225,9 +279,6 @@ export const Login = () => {
                   <CheckCircle2 className="h-20 w-20 text-emerald-500" />
                 </div>
                 <div className="text-center">
-                  <p className="text-gray-700 dark:text-gray-300 mb-6">
-                    We've sent a password reset link to <strong>{email}</strong>
-                  </p>
                   <button
                     onClick={() => {
                       resetForm();
@@ -238,6 +289,126 @@ export const Login = () => {
                   </button>
                 </div>
               </div>
+            ) : showOtpForm ? (
+              <form onSubmit={handleResetPassword} className="space-y-6">
+                {errors.form && (
+                  <div className="p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-500 rounded-xl flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-red-700 dark:text-red-200 text-sm">
+                      {errors.form}
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Enter OTP
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => {
+                      setOtp(e.target.value.replace(/\D/g, ""));
+                      setErrors({ ...errors, otp: "" });
+                    }}
+                    className={`w-full text-center text-2xl tracking-[1rem] font-bold py-3 border-2 rounded-xl focus:outline-none transition-all ${
+                      errors.otp
+                        ? "border-red-500 focus:border-red-600"
+                        : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
+                    } dark:bg-gray-700 dark:text-white`}
+                    placeholder="000000"
+                  />
+                  {errors.otp && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{errors.otp}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        setErrors({ ...errors, newPassword: "" });
+                      }}
+                      className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none transition-all ${
+                        errors.newPassword
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
+                      } dark:bg-gray-700 dark:text-white`}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.newPassword && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{errors.newPassword}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmNewPassword}
+                      onChange={(e) => {
+                        setConfirmNewPassword(e.target.value);
+                        setErrors({ ...errors, confirmNewPassword: "" });
+                      }}
+                      className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none transition-all ${
+                        errors.confirmNewPassword
+                          ? "border-red-500 focus:border-red-600"
+                          : "border-gray-300 dark:border-gray-600 focus:border-emerald-500"
+                      } dark:bg-gray-700 dark:text-white`}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  {errors.confirmNewPassword && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>{errors.confirmNewPassword}</span>
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                  {loading ? "Resetting..." : "Reset Password"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowOtpForm(false)}
+                  className="w-full px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                  Back
+                </button>
+              </form>
             ) : (
               <form onSubmit={handleForgotPassword} className="space-y-6">
                 {errors.form && (
@@ -282,7 +453,7 @@ export const Login = () => {
                   type="submit"
                   disabled={loading}
                   className="w-full px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? "Sending..." : "Send OTP"}
                 </button>
 
                 <button
