@@ -40,21 +40,21 @@ const users = [
     email: "admin@ecotrack.com",
     password: "admin123",
     role: "admin",
-    isEmailVerified: true,
+    isVerified: true,
   },
   {
     fullName: "Murad Hasan",
     email: "imurad2020@gmail.com",
     password: "11223344",
     role: "admin",
-    isEmailVerified: true,
+    isVerified: true,
   },
   {
     fullName: "Test User",
     email: "test@ecotrack.com",
-    password: "test123",
+    password: "test1234",
     role: "user",
-    isEmailVerified: true,
+    isVerified: true,
   },
 ];
 
@@ -299,15 +299,9 @@ const initiate = async () => {
     ]);
     console.log("✅ All collections cleared!\n");
 
-    // Hash passwords and create users
+    // Create users (password will be hashed by User model pre-save hook)
     console.log("👤 Creating users...");
-    const hashedUsers = await Promise.all(
-      users.map(async (user) => ({
-        ...user,
-        password: await bcrypt.hash(user.password, 10),
-      }))
-    );
-    const createdUsers = await User.create(hashedUsers);
+    const createdUsers = await User.create(users);
     console.log(`   ✅ Created ${createdUsers.length} users`);
     users.forEach((u) => console.log(`      - ${u.email} / ${u.password}`));
 

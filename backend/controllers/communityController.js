@@ -24,20 +24,22 @@ export const getPosts = async (req, res, next) => {
       commentCountMap[item._id.toString()] = item.count;
     });
 
-    // Transform to match frontend expectations
-    const transformedPosts = posts.map((post) => ({
-      id: post._id,
-      content: post.content,
-      likes: (post.likedBy && post.likedBy.length) || 0,
-      likedBy: post.likedBy || [],
-      commentCount: commentCountMap[post._id.toString()] || 0,
-      created_at: post.createdAt,
-      user_id: post.userId._id,
-      profiles: {
-        full_name: post.userId.fullName,
-        email: post.userId.email,
-      },
-    }));
+    // Transform to match frontend expectations (filter out posts with deleted users)
+    const transformedPosts = posts
+      .filter((post) => post.userId !== null) // Skip posts where user was deleted
+      .map((post) => ({
+        id: post._id,
+        content: post.content,
+        likes: (post.likedBy && post.likedBy.length) || 0,
+        likedBy: post.likedBy || [],
+        commentCount: commentCountMap[post._id.toString()] || 0,
+        created_at: post.createdAt,
+        user_id: post.userId._id,
+        profiles: {
+          full_name: post.userId.fullName,
+          email: post.userId.email,
+        },
+      }));
 
     res.json({
       success: true,
@@ -126,8 +128,10 @@ export const likePost = async (req, res, next) => {
     }
 
     // Ensure likes count matches likedBy array length
-    const correctLikeCount = updatedPost.likedBy ? updatedPost.likedBy.length : 0;
-    
+    const correctLikeCount = updatedPost.likedBy
+      ? updatedPost.likedBy.length
+      : 0;
+
     res.json({
       success: true,
       liked: !hasLiked,
@@ -329,8 +333,10 @@ export const likeComment = async (req, res, next) => {
     }
 
     // Ensure likes count matches likedBy array length
-    const correctLikeCount = updatedComment.likedBy ? updatedComment.likedBy.length : 0;
-    
+    const correctLikeCount = updatedComment.likedBy
+      ? updatedComment.likedBy.length
+      : 0;
+
     res.json({
       success: true,
       liked: !hasLiked,
