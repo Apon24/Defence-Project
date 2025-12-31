@@ -135,14 +135,114 @@ const dummyEvents = [
 
 const dummyPlantingAreas = [
   {
-    title: "Dhaka North Afforestation",
-    description: "Restoring green cover in the northern part of the city.",
+    title: "Sundarbans Buffer Zone",
+    description:
+      "Largest mangrove forest in the world. UNESCO World Heritage Site under threat. Critical tiger habitat disappearing.",
+    latitude: 22.5,
+    longitude: 89.5,
+    district: "Khulna",
+    division: "Khulna",
+    problemType: "Coastal Erosion",
+    isPlanted: false,
+  },
+  {
+    title: "Chattogram Hill Tracts",
+    description:
+      "Jhum cultivation causing rapid soil loss. 70% forest cover lost in 40 years. Biodiversity hotspot at risk.",
+    latitude: 23.0,
+    longitude: 92.0,
+    district: "Rangamati",
+    division: "Chattogram",
+    problemType: "Deforestation",
+    isPlanted: false,
+  },
+  {
+    title: "Sylhet Tea Gardens",
+    description:
+      "Wetland ecosystem degradation. Chemical runoff from tea plantations. Migratory bird habitat threatened.",
+    latitude: 24.8949,
+    longitude: 91.8687,
+    district: "Sylhet",
+    division: "Sylhet",
+    problemType: "Pollution",
+    isPlanted: false,
+  },
+  {
+    title: "Dhaka Metropolitan Area",
+    description:
+      "World's 2nd most polluted city. Only 8% green cover remaining. Urban heat island effect worsening.",
     latitude: 23.8103,
     longitude: 90.4125,
     district: "Dhaka",
     division: "Dhaka",
     problemType: "Urbanization",
-    isPlanted: true,
+    isPlanted: false,
+  },
+  {
+    title: "Barishal Coastal Belt",
+    description:
+      "Cyclone vulnerable area. Salinity intrusion affecting agriculture. River bank erosion displacing thousands.",
+    latitude: 22.701,
+    longitude: 90.3535,
+    district: "Barishal",
+    division: "Barishal",
+    problemType: "Coastal Erosion",
+    isPlanted: false,
+  },
+  {
+    title: "Kurigram Char Lands",
+    description:
+      "Annual flooding destroys settlements. Riverbank erosion most severe in country. Climate refugee crisis emerging.",
+    latitude: 25.8073,
+    longitude: 89.636,
+    district: "Kurigram",
+    division: "Rangpur",
+    problemType: "Flood Erosion",
+    isPlanted: false,
+  },
+  {
+    title: "Chittagong Port Area",
+    description:
+      "Busiest port causing heavy pollution. Ship-breaking yards toxic waste. Air quality hazardous 180 days/year.",
+    latitude: 22.3569,
+    longitude: 91.7832,
+    district: "Chittagong",
+    division: "Chattogram",
+    problemType: "Industrial Pollution",
+    isPlanted: false,
+  },
+  {
+    title: "Rajshahi Barind Tract",
+    description:
+      "Drought-prone region worsening. Groundwater depletion critical. Desertification indicators present.",
+    latitude: 24.3745,
+    longitude: 88.6042,
+    district: "Rajshahi",
+    division: "Rajshahi",
+    problemType: "Drought",
+    isPlanted: false,
+  },
+  {
+    title: "Mymensingh Haor Basin",
+    description:
+      "Flash flooding increasing. Wetland biodiversity declining. Fish breeding grounds threatened.",
+    latitude: 24.7471,
+    longitude: 90.4203,
+    district: "Mymensingh",
+    division: "Mymensingh",
+    problemType: "Wetland Degradation",
+    isPlanted: false,
+  },
+  {
+    title: "Cox's Bazar Refugee Area",
+    description:
+      "Fastest deforestation in Bangladesh. 6000 acres of forest cleared for camps. Landslide risk increased 400%.",
+    latitude: 21.4272,
+    longitude: 92.0058,
+    district: "Cox's Bazar",
+    division: "Chattogram",
+    problemType: "Deforestation",
+    isPlanted: false,
   },
 ];
 

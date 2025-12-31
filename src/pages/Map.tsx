@@ -29,6 +29,7 @@ import {
 import { useApp } from "../contexts/AppContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { plantingApi } from "../lib/api";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -50,6 +51,7 @@ const bangladeshBounds: [[number, number], [number, number]] = [
 interface EnvironmentalZone {
   id: number;
   name: string;
+  dbId?: string; // MongoDB _id for API calls
   district: string;
   lat: number;
   lng: number;
@@ -517,6 +519,8 @@ export const Map = () => {
   );
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [dbPlantingAreas, setDbPlantingAreas] = useState<any[]>([]);
+  const [isPlanting, setIsPlanting] = useState(false);
 
   // Get user's current location
   const getUserLocation = useCallback(() => {
@@ -585,6 +589,21 @@ export const Map = () => {
     }
   }, []);
 
+  // Fetch planting areas from database and map to local zones
+  useEffect(() => {
+    const fetchPlantingAreas = async () => {
+      try {
+        const response = await plantingApi.getAreas();
+        if (response.success && response.data) {
+          setDbPlantingAreas(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch planting areas:", error);
+      }
+    };
+    fetchPlantingAreas();
+  }, []);
+
   const getDistrictStats = () => {
     const stats: { [key: string]: number } = {};
     plantedTrees.forEach((tree) => {
@@ -640,47 +659,75 @@ export const Map = () => {
     setShowTreeSelector(true);
   };
 
-  const handleTreePlant = (treeType: (typeof bangladeshTreeTypes)[0]) => {
-    if (selectedZone) {
-      const newTree: PlantedTree = {
-        id: Date.now(),
-        zone: selectedZone,
-        treeType: treeType,
-        date: new Date().toISOString(),
-        userName: user?.fullName,
-      };
+  const handleTreePlant = async (treeType: (typeof bangladeshTreeTypes)[0]) => {
+    if (selectedZone && !isPlanting) {
+      setIsPlanting(true);
 
-      setPlantedTrees((prev) => {
-        const updated = [...prev, newTree];
-        localStorage.setItem(
-          "environmentalTreesPlanted",
-          JSON.stringify(updated)
-        );
-        return updated;
-      });
+      // Find the matching DB planting area by name
+      const dbArea = dbPlantingAreas.find(
+        (area) =>
+          area.title === selectedZone.name ||
+          (area.latitude === selectedZone.lat &&
+            area.longitude === selectedZone.lng)
+      );
 
-      plantTree({
-        id: newTree.id,
-        area: {
-          id: selectedZone.id,
-          name: selectedZone.name,
-          lat: selectedZone.lat,
-          lng: selectedZone.lng,
-          pollution: selectedZone.pollutionIndex.toString(),
-          population: selectedZone.population,
-          description: selectedZone.environmentalFacts[0],
-        },
-        treeType: treeType,
-        date: newTree.date,
-        co2Absorption: treeType.co2Absorption,
-      });
+      try {
+        // Save to backend database if we have a matching planting area
+        if (dbArea) {
+          await plantingApi.plantTree({
+            plantingAreaId: dbArea._id,
+            treeType: treeType.name,
+            notes: `Planted in ${selectedZone.name} - ${selectedZone.district}`,
+          });
+        }
 
-      setLastPlantedTree(newTree);
-      setShowAnimation(true);
-      setTimeout(() => setShowAnimation(false), 3000);
+        // Create local tree record for UI
+        const newTree: PlantedTree = {
+          id: Date.now(),
+          zone: selectedZone,
+          treeType: treeType,
+          date: new Date().toISOString(),
+          userName: user?.fullName,
+        };
 
-      setShowTreeSelector(false);
-      setSelectedZone(null);
+        setPlantedTrees((prev) => {
+          const updated = [...prev, newTree];
+          localStorage.setItem(
+            "environmentalTreesPlanted",
+            JSON.stringify(updated)
+          );
+          return updated;
+        });
+
+        plantTree({
+          id: newTree.id,
+          area: {
+            id: selectedZone.id,
+            name: selectedZone.name,
+            lat: selectedZone.lat,
+            lng: selectedZone.lng,
+            pollution: selectedZone.pollutionIndex.toString(),
+            population: selectedZone.population,
+            description: selectedZone.environmentalFacts[0],
+          },
+          treeType: treeType,
+          date: newTree.date,
+          co2Absorption: treeType.co2Absorption,
+        });
+
+        setLastPlantedTree(newTree);
+        setShowAnimation(true);
+        setTimeout(() => setShowAnimation(false), 3000);
+
+        // Dispatch custom event to notify other components (like Home) to update
+        window.dispatchEvent(new CustomEvent("tree-planted"));
+      } catch (error) {
+        console.error("Failed to plant tree:", error);
+      } finally {
+        setIsPlanting(false);
+        setShowTreeSelector(false);
+        setSelectedZone(null);
+      }
     }
   };
 

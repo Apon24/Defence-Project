@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Leaf,
   Calculator,
@@ -18,6 +18,56 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
+// Animated number component for live updates
+const AnimatedNumber = ({
+  value,
+  suffix = "",
+}: {
+  value: number;
+  suffix?: string;
+}) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevValue = useRef(value);
+
+  useEffect(() => {
+    if (value !== prevValue.current) {
+      setIsAnimating(true);
+      // Animate to new value
+      const duration = 500;
+      const startValue = prevValue.current;
+      const diff = value - startValue;
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        setDisplayValue(Math.round(startValue + diff * easeOut));
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setIsAnimating(false);
+        }
+      };
+
+      requestAnimationFrame(animate);
+      prevValue.current = value;
+    }
+  }, [value]);
+
+  return (
+    <span
+      className={`transition-transform duration-300 ${
+        isAnimating ? "scale-110" : "scale-100"
+      }`}>
+      {displayValue.toLocaleString()}
+      {suffix}
+    </span>
+  );
+};
+
 export const Home = () => {
   const { t, language } = useLanguage();
   const [impactStats, setImpactStats] = useState({
@@ -27,22 +77,40 @@ export const Home = () => {
     challenges: 0,
   });
 
-  useEffect(() => {
-    const fetchImpactStats = async () => {
-      try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-        const response = await fetch(`${apiUrl}/impact`);
-        if (response.ok) {
-          const data = await response.json();
-          setImpactStats(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch impact stats:", error);
+  const fetchImpactStats = async () => {
+    try {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+      const response = await fetch(`${apiUrl}/impact`);
+      if (response.ok) {
+        const data = await response.json();
+        setImpactStats(data);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch impact stats:", error);
+    }
+  };
 
+  // Poll for updates every 5 seconds and listen for tree-planted events
+  useEffect(() => {
+    // Initial fetch
     fetchImpactStats();
+
+    // Set up polling interval (every 5 seconds)
+    const pollInterval = setInterval(() => {
+      fetchImpactStats();
+    }, 5000);
+
+    // Listen for custom tree-planted event for immediate updates
+    const handleTreePlanted = () => {
+      fetchImpactStats();
+    };
+    window.addEventListener("tree-planted", handleTreePlanted);
+
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener("tree-planted", handleTreePlanted);
+    };
   }, []);
 
   return (
@@ -153,7 +221,7 @@ export const Home = () => {
                 <TreePine className="h-7 w-7 text-white" />
               </div>
               <p className="text-4xl font-bold text-white mb-2">
-                {impactStats.trees.toLocaleString()}+
+                <AnimatedNumber value={impactStats.trees} suffix="+" />
               </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.trees")}
@@ -165,7 +233,7 @@ export const Home = () => {
                 <Recycle className="h-7 w-7 text-white" />
               </div>
               <p className="text-4xl font-bold text-white mb-2">
-                {impactStats.co2Saved.toLocaleString()}kg+
+                <AnimatedNumber value={impactStats.co2Saved} suffix="kg+" />
               </p>
               <p className="text-emerald-200 text-sm">{t("home.impact.co2")}</p>
             </div>
@@ -175,7 +243,7 @@ export const Home = () => {
                 <Users className="h-7 w-7 text-white" />
               </div>
               <p className="text-4xl font-bold text-white mb-2">
-                {impactStats.users.toLocaleString()}+
+                <AnimatedNumber value={impactStats.users} suffix="+" />
               </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.members")}
@@ -187,7 +255,7 @@ export const Home = () => {
                 <Target className="h-7 w-7 text-white" />
               </div>
               <p className="text-4xl font-bold text-white mb-2">
-                {impactStats.challenges.toLocaleString()}+
+                <AnimatedNumber value={impactStats.challenges} suffix="+" />
               </p>
               <p className="text-emerald-200 text-sm">
                 {t("home.impact.challenges")}
