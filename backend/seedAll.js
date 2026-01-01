@@ -1,3 +1,17 @@
+/**
+ * Complete Database Seeding Script for Eco Track Bangladesh
+ *
+ * Run this script to set up a fresh database with all seed data.
+ * Usage: node seedAll.js
+ *
+ * This script will:
+ * 1. Clear all existing data
+ * 2. Create admin and test users
+ * 3. Seed badges, blog posts, quiz questions
+ * 4. Add planting areas, eco locations, and events
+ * 5. Add sample user activities (trees, challenges, carbon footprints)
+ */
+
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import {
@@ -16,11 +30,19 @@ import connectDB from "./config/db.js";
 
 dotenv.config();
 
-const dummyUsers = [
+// ============ USERS ============
+const users = [
   {
     fullName: "Admin User",
     email: "admin@ecotrack.com",
-    password: "Password123!",
+    password: "admin123",
+    role: "admin",
+    isVerified: true,
+  },
+  {
+    fullName: "Murad Hasan",
+    email: "imurad2020@gmail.com",
+    password: "11223344",
     role: "admin",
     isVerified: true,
   },
@@ -32,6 +54,13 @@ const dummyUsers = [
     isVerified: true,
   },
   {
+    fullName: "Test User",
+    email: "test@ecotrack.com",
+    password: "test1234",
+    role: "user",
+    isVerified: true,
+  },
+  {
     fullName: "Murad Hasan",
     email: "murad@example.com",
     password: "Password123!",
@@ -40,49 +69,94 @@ const dummyUsers = [
   },
 ];
 
-const dummyBadges = [
+// ============ BADGES ============
+const badges = [
   {
     name: "Eco Rookie",
     description: "Completed your first carbon footprint calculation",
-    icon: "https://api.dicebear.com/7.x/icons/svg?seed=rookie",
+    icon: "🌱",
     requirement: "First calculation",
   },
   {
     name: "Tree Planter",
     description: "Planted your first virtual tree",
-    icon: "https://api.dicebear.com/7.x/icons/svg?seed=tree",
+    icon: "🌳",
     requirement: "First tree planted",
   },
   {
     name: "Quiz Master",
     description: "Scored 100% in a quiz",
-    icon: "https://api.dicebear.com/7.x/icons/svg?seed=quiz",
+    icon: "🏆",
     requirement: "Perfect quiz score",
+  },
+  {
+    name: "Carbon Warrior",
+    description: "Reduced carbon footprint for 7 consecutive days",
+    icon: "⚔️",
+    requirement: "7-day streak",
+  },
+  {
+    name: "Community Leader",
+    description: "Made 10 community posts",
+    icon: "👥",
+    requirement: "10 posts",
   },
 ];
 
-const dummyBlogPosts = [
+// ============ BLOG POSTS ============
+const blogPosts = [
   {
     title: "How to Reduce Your Carbon Footprint in Bangladesh",
     content:
-      "Bangladesh is one of the most vulnerable countries to climate change. Here are some simple steps you can take locally to reduce your impact, from using public transport to reducing plastic waste in Dhaka.",
+      "Bangladesh is one of the most vulnerable countries to climate change. Here are some simple steps you can take locally to reduce your impact:\n\n1. **Use Public Transport**: Dhaka's traffic contributes significantly to air pollution. Use buses, trains, or rickshaws when possible.\n\n2. **Reduce Plastic Use**: Carry reusable bags and avoid single-use plastics. Bangladesh banned plastic bags in 2002 - let's honor that law!\n\n3. **Conserve Water**: Install water-efficient fixtures and fix leaky taps.\n\n4. **Support Local Farmers**: Buy locally grown food to reduce transportation emissions.\n\n5. **Plant Trees**: Join community tree-planting drives in your area.",
     imageUrl:
       "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1000",
     excerpt: "Practical tips for a sustainable lifestyle in Bangladesh.",
     author: "Eco Track Team",
   },
   {
-    title: "Protecting the Sundarbans",
+    title: "Protecting the Sundarbans: Our Natural Heritage",
     content:
-      "The Sundarbans, the world's largest mangrove forest, is crucial for Bangladesh's ecosystem. Learn about the importance of mangrove conservation and how we can support local initiatives.",
+      "The Sundarbans, the world's largest mangrove forest, is crucial for Bangladesh's ecosystem. Spanning over 10,000 square kilometers, it serves as a natural barrier against cyclones and is home to the Royal Bengal Tiger.\n\n**Threats Facing the Sundarbans:**\n- Climate change and rising sea levels\n- Industrial pollution from nearby factories\n- Illegal logging and poaching\n- Increased salinity in water\n\n**What You Can Do:**\n- Support eco-tourism initiatives\n- Donate to conservation organizations\n- Spread awareness about mangrove importance\n- Report illegal activities to authorities",
     imageUrl:
       "https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&q=80&w=1000",
-    excerpt: "Deep dive into mangrove conservation.",
+    excerpt:
+      "Deep dive into the importance of mangrove conservation in Bangladesh.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "The Plastic Crisis in Bangladesh Rivers",
+    content:
+      "Bangladesh's rivers are suffocating under plastic waste. The Buriganga, Turag, and other major rivers have become dumping grounds for industrial and household waste.\n\n**The Scale of the Problem:**\n- Over 3,000 tons of plastic waste generated daily in Dhaka alone\n- Only 37% of plastic is recycled\n- Microplastics are entering our food chain through fish\n\n**Solutions We Need:**\n1. Enforce existing plastic bans strictly\n2. Invest in waste management infrastructure\n3. Promote biodegradable alternatives\n4. Community-led river cleanup initiatives\n5. Corporate responsibility for packaging",
+    imageUrl:
+      "https://images.unsplash.com/photo-1621451537084-482c73073a0f?auto=format&fit=crop&q=80&w=1000",
+    excerpt:
+      "Examining the devastating impact of plastic pollution on our waterways.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "Urban Gardening: Growing Green in Dhaka",
+    content:
+      "Despite being one of the world's most densely populated cities, Dhaka has a growing urban gardening movement.\n\n**Benefits of Urban Gardening:**\n- Reduces urban heat island effect\n- Improves air quality\n- Provides fresh, organic produce\n- Creates community bonds\n- Reduces stress and improves mental health\n\n**Getting Started:**\n- Start with easy plants like tomatoes, chillies, and herbs\n- Use recycled containers as pots\n- Collect rainwater for irrigation\n- Compost kitchen waste for fertilizer\n- Join rooftop gardening communities on Facebook",
+    imageUrl:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=1000",
+    excerpt:
+      "A guide to starting your own urban garden in Bangladesh's capital.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "Climate Refugees: Bangladesh's Growing Crisis",
+    content:
+      "Bangladesh is at the forefront of the climate refugee crisis. Rising sea levels and extreme weather events are displacing millions.\n\n**The Statistics Are Alarming:**\n- 17% of Bangladesh could be underwater by 2050\n- Over 20 million people may become climate refugees\n- Coastal erosion destroys homes yearly\n- Salinity intrusion is ruining farmland\n\n**Adaptation Strategies:**\n- Floating gardens and homes\n- Salt-tolerant crop varieties\n- Early warning systems for disasters\n- Planned relocation programs\n- International climate finance\n\nEvery action we take to reduce emissions helps prevent this future.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?auto=format&fit=crop&q=80&w=1000",
+    excerpt: "Understanding the human cost of climate change in Bangladesh.",
     author: "Eco Track Team",
   },
 ];
 
-const dummyLocations = [
+// ============ ECO LOCATIONS ============
+const ecoLocations = [
   {
     name: "Ramna Park Waste Collection Point",
     description:
@@ -103,7 +177,8 @@ const dummyLocations = [
   },
 ];
 
-const dummyEvents = [
+// ============ ECO EVENTS ============
+const ecoEvents = [
   {
     title: "Dhaka Coastal Cleanup",
     description:
@@ -133,7 +208,8 @@ const dummyEvents = [
   },
 ];
 
-const dummyPlantingAreas = [
+// ============ PLANTING AREAS ============
+const plantingAreas = [
   {
     title: "Sundarbans Buffer Zone",
     description:
@@ -246,7 +322,8 @@ const dummyPlantingAreas = [
   },
 ];
 
-const questions = [
+// ============ QUIZ QUESTIONS ============
+const quizQuestions = [
   {
     questionText: "কোনটি নবায়নযোগ্য শক্তির উৎস?",
     difficulty: "easy",
@@ -254,10 +331,10 @@ const questions = [
     points: 10,
     explanation: "সৌরশক্তি একটি অফুরন্ত এবং পরিবেশবান্ধব শক্তির উৎস।",
     answers: [
-      { answerText: "কয়লা", isCorrect: false },
-      { answerText: "প্রাকৃতিক গ্যাস", isCorrect: false },
-      { answerText: "সৌরশক্তি", isCorrect: true },
-      { answerText: "পেট্রোলিয়াম", isCorrect: false },
+      { answerText: "কয়লা", isCorrect: false, orderIndex: 0 },
+      { answerText: "প্রাকৃতিক গ্যাস", isCorrect: false, orderIndex: 1 },
+      { answerText: "সৌরশক্তি", isCorrect: true, orderIndex: 2 },
+      { answerText: "পেট্রোলিয়াম", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -269,10 +346,10 @@ const questions = [
     explanation:
       "Carbon dioxide (CO2) is the primary greenhouse gas emitted through human activities.",
     answers: [
-      { answerText: "Oxygen", isCorrect: false },
-      { answerText: "Carbondioxide", isCorrect: true },
-      { answerText: "Nitrogen", isCorrect: false },
-      { answerText: "Helium", isCorrect: false },
+      { answerText: "Oxygen", isCorrect: false, orderIndex: 0 },
+      { answerText: "Carbon dioxide", isCorrect: true, orderIndex: 1 },
+      { answerText: "Nitrogen", isCorrect: false, orderIndex: 2 },
+      { answerText: "Helium", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -282,10 +359,10 @@ const questions = [
     points: 15,
     explanation: "সুন্দরবন বিশ্বের বৃহত্তম ম্যানগ্রোভ বন।",
     answers: [
-      { answerText: "চিরহরিৎ বন", isCorrect: false },
-      { answerText: "ম্যানগ্রোভ বন", isCorrect: true },
-      { answerText: "পর্ণমোচী বন", isCorrect: false },
-      { answerText: "বৃষ্টির বন", isCorrect: false },
+      { answerText: "চিরহরিৎ বন", isCorrect: false, orderIndex: 0 },
+      { answerText: "ম্যানগ্রোভ বন", isCorrect: true, orderIndex: 1 },
+      { answerText: "পর্ণমোচী বন", isCorrect: false, orderIndex: 2 },
+      { answerText: "বৃষ্টির বন", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -296,10 +373,14 @@ const questions = [
     explanation:
       "Reduce, Reuse, and Recycle are the three key components of sustainable waste management.",
     answers: [
-      { answerText: "Read, Write, Recall", isCorrect: false },
-      { answerText: "Reduce, Reuse, Recycle", isCorrect: true },
-      { answerText: "Run, Rest, Repeat", isCorrect: false },
-      { answerText: "Repair, Remake, Recover", isCorrect: false },
+      { answerText: "Read, Write, Recall", isCorrect: false, orderIndex: 0 },
+      { answerText: "Reduce, Reuse, Recycle", isCorrect: true, orderIndex: 1 },
+      { answerText: "Run, Rest, Repeat", isCorrect: false, orderIndex: 2 },
+      {
+        answerText: "Repair, Remake, Recover",
+        isCorrect: false,
+        orderIndex: 3,
+      },
     ],
   },
   {
@@ -310,10 +391,10 @@ const questions = [
     explanation:
       "প্লাস্টিক বোতল পচতে প্রায় ৪৫০ বছর বা তার বেশি সময় লাগতে পারে।",
     answers: [
-      { answerText: "১০ বছর", isCorrect: false },
-      { answerText: "৫০ বছর", isCorrect: false },
-      { answerText: "১০০ বছর", isCorrect: false },
-      { answerText: "৪৫০ বছর", isCorrect: true },
+      { answerText: "১০ বছর", isCorrect: false, orderIndex: 0 },
+      { answerText: "৫০ বছর", isCorrect: false, orderIndex: 1 },
+      { answerText: "১০০ বছর", isCorrect: false, orderIndex: 2 },
+      { answerText: "৪৫০ বছর", isCorrect: true, orderIndex: 3 },
     ],
   },
   {
@@ -324,10 +405,10 @@ const questions = [
     explanation:
       "Styrofoam is a synthetic plastic that does not biodegrade easily.",
     answers: [
-      { answerText: "Paper", isCorrect: false },
-      { answerText: "Food scraps", isCorrect: false },
-      { answerText: "Styrofoam", isCorrect: true },
-      { answerText: "Cotton", isCorrect: false },
+      { answerText: "Paper", isCorrect: false, orderIndex: 0 },
+      { answerText: "Food scraps", isCorrect: false, orderIndex: 1 },
+      { answerText: "Styrofoam", isCorrect: true, orderIndex: 2 },
+      { answerText: "Cotton", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -337,10 +418,10 @@ const questions = [
     points: 10,
     explanation: "প্রতি বছর ৫ জুন বিশ্ব পরিবেশ দিবস পালিত হয়।",
     answers: [
-      { answerText: "২১ ফেব্রুয়ারি", isCorrect: false },
-      { answerText: "৫ জুন", isCorrect: true },
-      { answerText: "১৬ ডিসেম্বর", isCorrect: false },
-      { answerText: "১ জানুয়ারি", isCorrect: false },
+      { answerText: "২১ ফেব্রুয়ারি", isCorrect: false, orderIndex: 0 },
+      { answerText: "৫ জুন", isCorrect: true, orderIndex: 1 },
+      { answerText: "১৬ ডিসেম্বর", isCorrect: false, orderIndex: 2 },
+      { answerText: "১ জানুয়ারি", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -351,10 +432,10 @@ const questions = [
     explanation:
       "A dripping tap can waste huge amounts of water over time, estimated around 5,500 liters/year for a typical slow drip.",
     answers: [
-      { answerText: "100 liters", isCorrect: false },
-      { answerText: "500 liters", isCorrect: false },
-      { answerText: "1,000 liters", isCorrect: false },
-      { answerText: "Over 5,000 liters", isCorrect: true },
+      { answerText: "100 liters", isCorrect: false, orderIndex: 0 },
+      { answerText: "500 liters", isCorrect: false, orderIndex: 1 },
+      { answerText: "1,000 liters", isCorrect: false, orderIndex: 2 },
+      { answerText: "Over 5,000 liters", isCorrect: true, orderIndex: 3 },
     ],
   },
   {
@@ -365,10 +446,10 @@ const questions = [
     explanation:
       "ইলেকট্রিক যান (EV) জীবাশ্ম জ্বালানি ব্যবহার করে না, তাই সরাসরি কার্বন নির্গমন করে না।",
     answers: [
-      { answerText: "ডিজেল ইঞ্জিন", isCorrect: false },
-      { answerText: "কয়লা বিদ্যুৎ কেন্দ্র", isCorrect: false },
-      { answerText: "ইলেকট্রিক যান (EV)", isCorrect: true },
-      { answerText: "গ্যাস জেনারেটর", isCorrect: false },
+      { answerText: "ডিজেল ইঞ্জিন", isCorrect: false, orderIndex: 0 },
+      { answerText: "কয়লা বিদ্যুৎ কেন্দ্র", isCorrect: false, orderIndex: 1 },
+      { answerText: "ইলেকট্রিক যান (EV)", isCorrect: true, orderIndex: 2 },
+      { answerText: "গ্যাস জেনারেটর", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -379,10 +460,10 @@ const questions = [
     explanation:
       "Toilet flushing accounts for the largest share of indoor water use.",
     answers: [
-      { answerText: "Drinking", isCorrect: false },
-      { answerText: "Toilet flushing", isCorrect: true },
-      { answerText: "Dishwashing", isCorrect: false },
-      { answerText: "Laundry", isCorrect: false },
+      { answerText: "Drinking", isCorrect: false, orderIndex: 0 },
+      { answerText: "Toilet flushing", isCorrect: true, orderIndex: 1 },
+      { answerText: "Dishwashing", isCorrect: false, orderIndex: 2 },
+      { answerText: "Laundry", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -392,10 +473,10 @@ const questions = [
     points: 10,
     explanation: "সিলেট এবং মৌলভীবাজার অঞ্চল চায়ের জন্য বিখ্যাত।",
     answers: [
-      { answerText: "ঢাকা", isCorrect: false },
-      { answerText: "সিলেট", isCorrect: true },
-      { answerText: "রাজশাহী", isCorrect: false },
-      { answerText: "খুলনা", isCorrect: false },
+      { answerText: "ঢাকা", isCorrect: false, orderIndex: 0 },
+      { answerText: "সিলেট", isCorrect: true, orderIndex: 1 },
+      { answerText: "রাজশাহী", isCorrect: false, orderIndex: 2 },
+      { answerText: "খুলনা", isCorrect: false, orderIndex: 3 },
     ],
   },
   {
@@ -406,64 +487,104 @@ const questions = [
     explanation:
       "Energy (electricity, heat, transport) contributes the most to global emissions.",
     answers: [
-      { answerText: "Agriculture", isCorrect: false },
-      { answerText: "Energy", isCorrect: true },
-      { answerText: "Waste", isCorrect: false },
-      { answerText: "Forestry", isCorrect: false },
+      { answerText: "Agriculture", isCorrect: false, orderIndex: 0 },
+      { answerText: "Energy", isCorrect: true, orderIndex: 1 },
+      { answerText: "Waste", isCorrect: false, orderIndex: 2 },
+      { answerText: "Forestry", isCorrect: false, orderIndex: 3 },
     ],
   },
 ];
 
+// ============ MAIN SEEDING FUNCTION ============
 const seedAll = async () => {
   try {
-    console.log("Connecting to Database...");
+    console.log("\n🌿 Eco Track Bangladesh - Complete Database Seeding\n");
+    console.log("━".repeat(50));
+
+    console.log("📡 Connecting to MongoDB...");
     await connectDB();
-    console.log("Connected!");
+    console.log("✅ Connected to MongoDB!\n");
 
-    // Clear existing data
-    console.log("Cleaning up existing data...");
-    await User.deleteMany({});
-    await Badge.deleteMany({});
-    await BlogPost.deleteMany({});
-    await EcoLocation.deleteMany({});
-    await EcoEvent.deleteMany({});
-    await PlantingArea.deleteMany({});
-    await PlantedTree.deleteMany({});
-    await DailyChallenge.deleteMany({});
-    await CarbonFootprint.deleteMany({});
-    await QuizQuestion.deleteMany({});
+    // Clear all existing data
+    console.log("🧹 Clearing ALL existing data...");
+    await Promise.all([
+      User.deleteMany({}),
+      Badge.deleteMany({}),
+      BlogPost.deleteMany({}),
+      EcoLocation.deleteMany({}),
+      EcoEvent.deleteMany({}),
+      PlantingArea.deleteMany({}),
+      PlantedTree.deleteMany({}),
+      DailyChallenge.deleteMany({}),
+      CarbonFootprint.deleteMany({}),
+      QuizQuestion.deleteMany({}),
+    ]);
+    console.log("✅ All collections cleared!\n");
 
-    // Seed Data
-    console.log("Seeding Users...");
-    const users = await User.create(dummyUsers);
-    const muradId = users[1]._id;
+    // Create users (password will be hashed by User model pre-save hook)
+    console.log("👤 Creating users...");
+    const createdUsers = await User.create(users);
+    console.log(`   ✅ Created ${createdUsers.length} users`);
+    users.forEach((u) => console.log(`      - ${u.email} / ${u.password}`));
 
-    console.log("Seeding Badges...");
-    await Badge.insertMany(dummyBadges);
+    // Find Murad user for sample data
+    const muradUser = createdUsers.find((u) => u.email === "murad@example.com");
+    const muradId = muradUser ? muradUser._id : createdUsers[0]._id;
 
-    console.log("Seeding Blog Posts...");
-    await BlogPost.insertMany(dummyBlogPosts);
+    // Create badges
+    console.log("\n🏆 Creating badges...");
+    await Badge.insertMany(badges);
+    console.log(`   ✅ Created ${badges.length} badges`);
 
-    console.log("Seeding Locations...");
-    await EcoLocation.insertMany(dummyLocations);
+    // Create blog posts
+    console.log("\n📝 Creating blog posts...");
+    await BlogPost.insertMany(blogPosts);
+    console.log(`   ✅ Created ${blogPosts.length} blog posts`);
 
-    console.log("Seeding Events...");
-    await EcoEvent.insertMany(dummyEvents);
+    // Create planting areas
+    console.log("\n🗺️  Creating planting areas...");
+    const createdAreas = await PlantingArea.create(plantingAreas);
+    console.log(`   ✅ Created ${createdAreas.length} planting areas`);
 
-    console.log("Seeding Planting Areas and Trees...");
-    const areas = await PlantingArea.create(dummyPlantingAreas);
-    await PlantedTree.create([
-      { plantingAreaId: areas[0]._id, treeType: "Mango", plantedBy: muradId },
-      { plantingAreaId: areas[0]._id, treeType: "Neem", plantedBy: muradId },
+    // Create eco locations
+    console.log("\n📍 Creating eco locations...");
+    await EcoLocation.insertMany(ecoLocations);
+    console.log(`   ✅ Created ${ecoLocations.length} eco locations`);
+
+    // Create eco events
+    console.log("\n📅 Creating eco events...");
+    await EcoEvent.insertMany(ecoEvents);
+    console.log(`   ✅ Created ${ecoEvents.length} eco events`);
+
+    // Create quiz questions
+    console.log("\n❓ Creating quiz questions...");
+    await QuizQuestion.insertMany(quizQuestions);
+    console.log(`   ✅ Created ${quizQuestions.length} quiz questions`);
+
+    // Create sample planted trees
+    console.log("\n🌳 Creating sample planted trees...");
+    const plantedTrees = await PlantedTree.create([
       {
-        plantingAreaId: areas[0]._id,
+        plantingAreaId: createdAreas[0]._id,
+        treeType: "Mango",
+        plantedBy: muradId,
+      },
+      {
+        plantingAreaId: createdAreas[0]._id,
+        treeType: "Neem",
+        plantedBy: muradId,
+      },
+      {
+        plantingAreaId: createdAreas[0]._id,
         treeType: "Jackfruit",
         plantedBy: muradId,
       },
     ]);
+    console.log(`   ✅ Created ${plantedTrees.length} planted trees`);
 
-    console.log("Seeding Challenges...");
-    await DailyChallenge.create([
+    // Create sample challenges
+    console.log("\n🎯 Creating sample challenges...");
+    const challenges = await DailyChallenge.create([
       {
         userId: muradId,
         challengeName: "No Plastic Day",
@@ -483,9 +604,11 @@ const seedAll = async () => {
         completedAt: new Date(),
       },
     ]);
+    console.log(`   ✅ Created ${challenges.length} challenges`);
 
-    console.log("Seeding Carbon Footprints...");
-    await CarbonFootprint.create([
+    // Create sample carbon footprints
+    console.log("\n💨 Creating sample carbon footprints...");
+    const footprints = await CarbonFootprint.create([
       {
         userId: muradId,
         electricityKwh: 100,
@@ -495,14 +618,32 @@ const seedAll = async () => {
         category: "Medium",
       },
     ]);
+    console.log(`   ✅ Created ${footprints.length} carbon footprints`);
 
-    console.log("Seeding Quiz Questions...");
-    await QuizQuestion.insertMany(questions);
+    // Summary
+    console.log("\n" + "━".repeat(50));
+    console.log("🎉 Complete Database Seeding Successful!\n");
+    console.log("📊 Summary:");
+    console.log(`   • Users: ${createdUsers.length}`);
+    console.log(`   • Badges: ${badges.length}`);
+    console.log(`   • Blog Posts: ${blogPosts.length}`);
+    console.log(`   • Planting Areas: ${createdAreas.length}`);
+    console.log(`   • Eco Locations: ${ecoLocations.length}`);
+    console.log(`   • Eco Events: ${ecoEvents.length}`);
+    console.log(`   • Quiz Questions: ${quizQuestions.length}`);
+    console.log(`   • Planted Trees: ${plantedTrees.length}`);
+    console.log(`   • Challenges: ${challenges.length}`);
+    console.log(`   • Carbon Footprints: ${footprints.length}`);
+    console.log("\n📌 Login Credentials:");
+    console.log("   Admin: imurad2020@gmail.com / 11223344");
+    console.log("   Admin: admin@ecotrack.com / admin123");
+    console.log("   Test:  test@ecotrack.com / test1234");
+    console.log("   User:  murad@example.com / Password123!");
+    console.log("\n🚀 You can now start the server with: bun dev\n");
 
-    console.log("Data Seeding Completed Successfully!");
-    process.exit();
+    process.exit(0);
   } catch (error) {
-    console.error("Error Seeding Data:", error);
+    console.error("\n❌ Error during seeding:", error);
     process.exit(1);
   }
 };
