@@ -92,6 +92,58 @@ const badges = [
   },
 ];
 
+// ============ BLOG POSTS ============
+const blogPosts = [
+  {
+    title: "How to Reduce Your Carbon Footprint in Bangladesh",
+    content:
+      "Bangladesh is one of the most vulnerable countries to climate change. Here are some simple steps you can take locally to reduce your impact:\n\n1. **Use Public Transport**: Dhaka's traffic contributes significantly to air pollution. Use buses, trains, or rickshaws when possible.\n\n2. **Reduce Plastic Use**: Carry reusable bags and avoid single-use plastics. Bangladesh banned plastic bags in 2002 - let's honor that law!\n\n3. **Conserve Water**: Install water-efficient fixtures and fix leaky taps.\n\n4. **Support Local Farmers**: Buy locally grown food to reduce transportation emissions.\n\n5. **Plant Trees**: Join community tree-planting drives in your area.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1000",
+    excerpt: "Practical tips for a sustainable lifestyle in Bangladesh.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "Protecting the Sundarbans: Our Natural Heritage",
+    content:
+      "The Sundarbans, the world's largest mangrove forest, is crucial for Bangladesh's ecosystem. Spanning over 10,000 square kilometers, it serves as a natural barrier against cyclones and is home to the Royal Bengal Tiger.\n\n**Threats Facing the Sundarbans:**\n- Climate change and rising sea levels\n- Industrial pollution from nearby factories\n- Illegal logging and poaching\n- Increased salinity in water\n\n**What You Can Do:**\n- Support eco-tourism initiatives\n- Donate to conservation organizations\n- Spread awareness about mangrove importance\n- Report illegal activities to authorities",
+    imageUrl:
+      "https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&q=80&w=1000",
+    excerpt:
+      "Deep dive into the importance of mangrove conservation in Bangladesh.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "The Plastic Crisis in Bangladesh Rivers",
+    content:
+      "Bangladesh's rivers are suffocating under plastic waste. The Buriganga, Turag, and other major rivers have become dumping grounds for industrial and household waste.\n\n**The Scale of the Problem:**\n- Over 3,000 tons of plastic waste generated daily in Dhaka alone\n- Only 37% of plastic is recycled\n- Microplastics are entering our food chain through fish\n\n**Solutions We Need:**\n1. Enforce existing plastic bans strictly\n2. Invest in waste management infrastructure\n3. Promote biodegradable alternatives\n4. Community-led river cleanup initiatives\n5. Corporate responsibility for packaging",
+    imageUrl:
+      "https://images.unsplash.com/photo-1621451537084-482c73073a0f?auto=format&fit=crop&q=80&w=1000",
+    excerpt:
+      "Examining the devastating impact of plastic pollution on our waterways.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "Urban Gardening: Growing Green in Dhaka",
+    content:
+      "Despite being one of the world's most densely populated cities, Dhaka has a growing urban gardening movement.\n\n**Benefits of Urban Gardening:**\n- Reduces urban heat island effect\n- Improves air quality\n- Provides fresh, organic produce\n- Creates community bonds\n- Reduces stress and improves mental health\n\n**Getting Started:**\n- Start with easy plants like tomatoes, chillies, and herbs\n- Use recycled containers as pots\n- Collect rainwater for irrigation\n- Compost kitchen waste for fertilizer\n- Join rooftop gardening communities on Facebook",
+    imageUrl:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=1000",
+    excerpt:
+      "A guide to starting your own urban garden in Bangladesh's capital.",
+    author: "Eco Track Team",
+  },
+  {
+    title: "Climate Refugees: Bangladesh's Growing Crisis",
+    content:
+      "Bangladesh is at the forefront of the climate refugee crisis. Rising sea levels and extreme weather events are displacing millions.\n\n**The Statistics Are Alarming:**\n- 17% of Bangladesh could be underwater by 2050\n- Over 20 million people may become climate refugees\n- Coastal erosion destroys homes yearly\n- Salinity intrusion is ruining farmland\n\n**Adaptation Strategies:**\n- Floating gardens and homes\n- Salt-tolerant crop varieties\n- Early warning systems for disasters\n- Planned relocation programs\n- International climate finance\n\nEvery action we take to reduce emissions helps prevent this future.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?auto=format&fit=crop&q=80&w=1000",
+    excerpt: "Understanding the human cost of climate change in Bangladesh.",
+    author: "Eco Track Team",
+  },
+];
+
 // ============ PLANTING AREAS (required for tree planting) ============
 const plantingAreas = [
   {
@@ -320,6 +372,11 @@ const initiate = async () => {
     await QuizQuestion.insertMany(quizQuestions);
     console.log(`   ✅ Created ${quizQuestions.length} quiz questions`);
 
+    // Create blog posts
+    console.log("\n📝 Creating blog posts...");
+    await BlogPost.insertMany(blogPosts);
+    console.log(`   ✅ Created ${blogPosts.length} blog posts`);
+
     // Summary
     console.log("\n" + "━".repeat(50));
     console.log("🎉 Clean Database Initialization Complete!\n");
@@ -328,11 +385,11 @@ const initiate = async () => {
     console.log(`   • Badges: ${badges.length}`);
     console.log(`   • Planting Areas: ${createdAreas.length}`);
     console.log(`   • Quiz Questions: ${quizQuestions.length}`);
+    console.log(`   • Blog Posts: ${blogPosts.length}`);
     console.log("");
     console.log("📭 Empty Collections (starting from 0):");
     console.log("   • Trees Planted: 0");
     console.log("   • Challenges: 0");
-    console.log("   • Blog Posts: 0");
     console.log("   • Eco Locations: 0");
     console.log("   • Eco Events: 0");
     console.log("   • Carbon Footprints: 0");
